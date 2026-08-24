@@ -1,24 +1,26 @@
 const express = require('express');
 const https = require('https');
-const http = require('http');
 const fs = require('fs');
 const socketio = require('socket.io');
 const path = require('path');
 
 const app = express();
 
-// ---------- SSL Certificate ----------
-let sslOptions = null;
+// ---------- SSL Certificate (Required) ----------
+let sslOptions;
 try {
     sslOptions = {
-        key: fs.readFileSync('localhost-key.pem'),
-        cert: fs.readFileSync('localhost.pem')
+        key: fs.readFileSync(path.join(__dirname, 'localhost-key.pem')),
+        cert: fs.readFileSync(path.join(__dirname, 'localhost.pem'))
     };
-    console.log('✅ SSL Certificate loaded successfully');
+    console.log('✅ HTTPS SSL Certificate loaded successfully.');
 } catch (err) {
-    console.log('⚠️ SSL Certificate not found. Running without HTTPS (HTTP only)');
+    console.error('❌ FATAL ERROR: localhost-key.pem or localhost.pem not found!');
+    console.error('Please run: openssl req -x509 -newkey rsa:2048 -keyout localhost-key.pem -out localhost.pem -days 365 -nodes');
+    process.exit(1); // SSL ഇല്ലെങ്കിൽ ആപ്പ് പ്രവർത്തിപ്പിക്കില്ല
 }
 
+// ---------- Middleware ----------
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
@@ -27,7 +29,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-// ---------- Database ----------
+// ---------- Database (JSON File) ----------
 const DB_FILE = path.join(__dirname, 'users.json');
 
 function readUsers() {
@@ -333,23 +335,23 @@ function setupSocket(io) {
     });
 }
 
-// ---------- Start Server ----------
-const PORT = process.env.PORT || 3002;
+// ---------- Start Server (HTTPS ONLY) ----------
+const PORT = process.env.PORT || 10000;
 
-if (sslOptions) {
-    const server = https.createServer(sslOptions, app);
-    const io = new socketio.Server(server);
-    setupSocket(io);
-    server.listen(PORT, '0.0.0.0', () => {
-        console.log(`🚀 HTTPS Server running on https://localhost:${PORT}`);
-        console.log('💎 All in One · Multiplayer Betting Game (Secure)');
-    });
-} else {
-    const server = http.createServer(app);
-    const io = new socketio.Server(server);
-    setupSocket(io);
-    server.listen(PORT, '0.0.0.0', () => {
-        console.log(`🚀 HTTP Server running on http://localhost:${PORT}`);
-        console.log('💎 All in One · Multiplayer Betting Game');
-    });
-}
+// HTTPS സെർവർ മാത്രം ആരംഭിക്കുന്നു
+const server = https.createServer(sslOptions, app);
+
+// Socket.io ഉം HTTPS സെർവറുമായി ബന്ധിപ്പിക്കുന്നു
+const io = new socketio.Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
+setupSocket(io);
+
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 HTTPS Server is running successfully on https://localhost:${PORT}`);
+    console.log('💎 All in One · Multiplayer Betting Game (Secure)');
+});

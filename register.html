@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>All in One · Register</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body {
+            background: #0a0c0f;
+            color: #eaeef2;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.2rem;
+        }
+        .auth-container {
+            max-width: 400px;
+            width: 100%;
+            background: #12171d;
+            border-radius: 2.5rem;
+            border: 1px solid #1f2a33;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .header { text-align: center; margin-bottom: 2rem; }
+        .icon { font-size: 2.5rem; }
+        .title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f7d875, #f0b84d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle { font-size: 0.85rem; color: #6a8a9a; margin-top: 0.3rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.8rem; color: #6a8a9a; margin-bottom: 0.3rem; }
+        .form-group input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: #0b0f14;
+            border: 1px solid #1f2a33;
+            border-radius: 2rem;
+            color: #fff;
+            outline: none;
+            font-size: 0.95rem;
+        }
+        .form-group input:focus { border-color: #4a7a9a; }
+        .auth-btn {
+            width: 100%;
+            padding: 0.7rem;
+            background: linear-gradient(135deg, #f7d875, #e8b84d);
+            border: none;
+            border-radius: 2rem;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0b0f14;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .auth-btn:hover { transform: scale(1.02); }
+        .message { margin-top: 1rem; text-align: center; font-size: 0.9rem; min-height: 1.5rem; color: #4ade80; }
+        .message.error { color: #f87171; }
+        .footer { text-align: center; font-size: 0.6rem; color: #2a4555; margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+<div class="auth-container">
+    <div class="header">
+        <div class="icon">💎</div>
+        <div class="title">All in One</div>
+        <div class="subtitle">Create your account</div>
+    </div>
+    <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="regUsername" placeholder="Choose username" />
+    </div>
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="regPassword" placeholder="Choose password" />
+    </div>
+    <button class="auth-btn" id="registerBtn">📝 Register</button>
+    <div class="message" id="registerMessage"></div>
+    <div style="text-align:center; margin-top:1rem; font-size:0.8rem;">
+        Already have an account? <a href="/login.html" style="color:#f7d875;">Login</a>
+    </div>
+    <div class="footer">All in One · Secure Registration</div>
+</div>
+<script>
+    (function() {
+        "use strict";
+        
+        // ലോക്കൽ ടെസ്റ്റിംഗിന് HTTPS URL
+        const API_URL = 'https://localhost:10000';
+
+        const registerBtn = document.getElementById('registerBtn');
+        const registerMessage = document.getElementById('registerMessage');
+
+        registerBtn.addEventListener('click', async function() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            if (!username || !password) {
+                registerMessage.textContent = 'Please fill all fields';
+                registerMessage.className = 'message error';
+                return;
+            }
+            try {
+                const res = await fetch(API_URL + '/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    registerMessage.textContent = '✅ Registration successful! Redirecting to login...';
+                    registerMessage.className = 'message';
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 1500);
+                } else {
+                    registerMessage.textContent = '❌ ' + data.message;
+                    registerMessage.className = 'message error';
+                }
+            } catch (err) {
+                registerMessage.textContent = '❌ Server error. Please try again.';
+                registerMessage.className = 'message error';
+            }
+        });
+
+        document.getElementById('regPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') registerBtn.click();
+        });
+    })();
+</script>
+</body>
+</html>

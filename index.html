@@ -381,6 +381,7 @@
     </div>
 </div>
 
+<script src="/socket.io/socket.io.js"></script>
 <script>
     (function() {
         "use strict";
@@ -394,7 +395,11 @@
             window.location.href = '/login.html';
         });
 
-        const socket = io({ query: { username: username } });
+        // 🔥 IMPORTANT: HTTPS server-ന് അനുയോജ്യമായ Socket.io connection
+        const socket = io({
+            query: { username: username },
+            transports: ['websocket'] // HTTPS-ൽ websocket transport നിർബന്ധമാണ്
+        });
 
         const balanceDisplay = document.getElementById('balanceDisplay');
         const playerIdDisplay = document.getElementById('playerIdDisplay');
