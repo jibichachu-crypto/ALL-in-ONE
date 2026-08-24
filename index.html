@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>All in One · Login</title>
+    <title>All in One · Game</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body {
@@ -12,264 +12,765 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
             padding: 1.2rem;
         }
-        .auth-container {
-            max-width: 400px;
+        .app {
+            max-width: 950px;
             width: 100%;
             background: #12171d;
             border-radius: 2.5rem;
             border: 1px solid #1f2a33;
-            padding: 2.5rem 2rem;
+            padding: 2rem 1.8rem;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
         .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .icon { font-size: 2.5rem; }
-        .title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #f7d875, #f0b84d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .subtitle {
-            font-size: 0.85rem;
-            color: #6a8a9a;
-            margin-top: 0.3rem;
-        }
-        .tab-bar {
             display: flex;
-            gap: 0.5rem;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #1f2a33;
             margin-bottom: 1.5rem;
         }
-        .tab-btn {
-            flex: 1;
-            padding: 0.6rem;
+        .header .left { display: flex; align-items: center; gap: 0.6rem; }
+        .icon { font-size: 2.2rem; }
+        .title { font-size: 1.8rem; font-weight: 700; background: linear-gradient(135deg, #f7d875, #f0b84d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .user-info { font-size: 0.8rem; color: #8ab0c8; }
+        .logout-btn {
+            background: #2a3a44;
+            border: none;
+            color: #fff;
+            padding: 0.3rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .logout-btn:hover { background: #3d5c7a; }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
             background: #0b0f14;
             border: 1px solid #1f2a33;
-            border-radius: 2rem;
+            border-radius: 1.2rem;
+            padding: 0.8rem 1.2rem;
+            margin-bottom: 1.2rem;
+            font-size: 0.8rem;
             color: #8ab0c8;
+        }
+        .streak-badge {
+            background: #1a2a3a;
+            border: 1px solid #4ade80;
+            border-radius: 2rem;
+            padding: 0.15rem 0.8rem;
+            font-size: 0.75rem;
+            color: #4ade80;
+        }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 700px) { .main-grid { grid-template-columns: 1fr; } }
+        .player-section {
+            background: #0b0f14;
+            border: 1px solid #1f2a33;
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+        }
+        .balance-box {
+            background: #0b0f14;
+            border: 1px solid #1f2a33;
+            border-radius: 1.2rem;
+            padding: 0.8rem;
+            text-align: left;
+            margin-bottom: 0.8rem;
+        }
+        .balance-label { font-size: 0.7rem; color: #6a8a9a; text-transform: uppercase; letter-spacing: 2px; }
+        .balance-amount { font-size: 2rem; font-weight: 700; color: #f7d875; }
+        .recharge-btn {
+            background: linear-gradient(135deg, #f7d875, #e8b84d);
+            border: none;
+            color: #0b0f14;
+            padding: 0.3rem 1.2rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 0.3rem;
+        }
+        .recharge-btn:hover { transform: scale(1.04); }
+        .bonus-display { text-align: center; font-size: 0.85rem; color: #4ade80; margin: 0.2rem 0 0.4rem; font-weight: 600; min-height: 1.6rem; }
+        .puzzle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; max-width: 220px; margin: 0 auto 0.6rem; }
+        .puzzle-tile {
+            background: #1a2630;
+            border: 2px solid #2a3a44;
+            border-radius: 0.6rem;
+            padding: 0.8rem 0;
+            font-size: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            user-select: none;
+            font-weight: 700;
+        }
+        .puzzle-tile:hover { border-color: #4a7a9a; transform: scale(1.02); }
+        .puzzle-tile.empty { background: transparent; border-color: transparent; cursor: default; }
+        .difficulty-row { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; margin: 0.4rem 0; }
+        .diff-btn {
+            background: #1a2630;
+            border: 1px solid #2a3a44;
+            color: #d0e0e8;
+            padding: 0.2rem 0.8rem;
+            border-radius: 2rem;
             font-weight: 600;
+            font-size: 0.7rem;
             cursor: pointer;
             transition: 0.2s;
         }
-        .tab-btn.active {
-            background: #2a4055;
-            border-color: #4a7a9a;
-            color: #fff;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            color: #6a8a9a;
-            margin-bottom: 0.3rem;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 0.7rem 1rem;
-            background: #0b0f14;
-            border: 1px solid #1f2a33;
+        .diff-btn:hover, .diff-btn.active { background: #2a4055; border-color: #4a7a9a; }
+        .diff-btn.easy { border-color: #4ade80; }
+        .diff-btn.medium { border-color: #fbbf24; }
+        .diff-btn.hard { border-color: #f87171; }
+        .diff-btn.easy.active { background: #1a3a2a; }
+        .diff-btn.medium.active { background: #3a3a1a; }
+        .diff-btn.hard.active { background: #3a1a1a; }
+        .bet-row { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; margin: 0.4rem 0; }
+        .bet-btn {
+            background: #1a2630;
+            border: 1px solid #2a3a44;
+            color: #d0e0e8;
+            padding: 0.3rem 0.8rem;
             border-radius: 2rem;
-            color: #fff;
-            outline: none;
-            font-size: 0.95rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .form-group input:focus {
-            border-color: #4a7a9a;
-        }
-        .auth-btn {
-            width: 100%;
-            padding: 0.7rem;
+        .bet-btn:hover, .bet-btn.active { background: #2a4055; border-color: #4a7a9a; }
+        .action-row { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }
+        .spin-btn {
             background: linear-gradient(135deg, #f7d875, #e8b84d);
             border: none;
-            border-radius: 2rem;
-            font-weight: 700;
-            font-size: 1rem;
             color: #0b0f14;
+            padding: 0.6rem 2rem;
+            border-radius: 3rem;
+            font-weight: 700;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: 0.25s;
         }
-        .auth-btn:hover { transform: scale(1.02); }
-        .message {
-            margin-top: 1rem;
-            text-align: center;
-            font-size: 0.9rem;
-            min-height: 1.5rem;
-            color: #4ade80;
+        .spin-btn:hover { transform: scale(1.04); }
+        .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .reset-btn {
+            background: transparent;
+            border: 1px solid #2a3a44;
+            color: #6a8a9a;
+            padding: 0.6rem 1.2rem;
+            border-radius: 3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.85rem;
         }
-        .message.error { color: #f87171; }
-        .footer {
+        .reset-btn:hover { border-color: #4a6a7a; color: #aac0d0; }
+        .result-msg { margin-top: 0.5rem; font-size: 0.9rem; color: #8ab0c8; min-height: 1.8rem; text-align: center; }
+        .timer-display { text-align: center; font-size: 1.2rem; font-weight: 700; color: #f7d875; margin: 0.2rem 0; }
+        .moves-display { text-align: center; font-size: 0.8rem; color: #6a8a9a; }
+        .footer { text-align: center; font-size: 0.6rem; color: #2a4555; margin-top: 1rem; }
+        .player-tag {
+            background: #1a2630;
+            border: 1px solid #2a3a44;
+            border-radius: 2rem;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.7rem;
+            color: #8ab0c8;
+            display: inline-block;
+        }
+        .player-tag.active { border-color: #4a7a9a; background: #1f3142; }
+        #playerIdDisplay { color: #f7d875; font-weight: 600; }
+        .other-player-card {
+            background: #0b0f14;
+            border: 1px solid #1f2a33;
+            border-radius: 1rem;
+            padding: 0.6rem;
+            margin-bottom: 0.5rem;
+        }
+        .other-player-card .puzzle-mini { font-size: 0.7rem; color: #6a8a9a; margin-top: 0.2rem; }
+        .other-player-card .diff-tag { font-size: 0.55rem; padding: 0.1rem 0.5rem; border-radius: 1rem; background: #1a2630; }
+        .diff-tag.easy { color: #4ade80; border: 1px solid #4ade80; }
+        .diff-tag.medium { color: #fbbf24; border: 1px solid #fbbf24; }
+        .diff-tag.hard { color: #f87171; border: 1px solid #f87171; }
+        .current-player-box {
+            background: #1a2a3a;
+            border: 1px solid #4a7a9a;
+            border-radius: 1rem;
+            padding: 0.5rem;
             text-align: center;
-            font-size: 0.6rem;
-            color: #2a4555;
-            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+        .current-player-box .label { font-size: 0.6rem; color: #6a8a9a; text-transform: uppercase; letter-spacing: 1px; }
+        .current-player-box .player-name { font-size: 1rem; font-weight: 700; color: #f7d875; }
+        .random-btn {
+            background: #2a4055;
+            border: none;
+            color: #fff;
+            padding: 0.2rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-left: 0.5rem;
+        }
+        .random-btn:hover { background: #3d5c7a; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #12171d;
+            border: 1px solid #1f2a33;
+            border-radius: 2rem;
+            padding: 2rem;
+            max-width: 520px;
+            width: 92%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h2 { color: #f7d875; font-size: 1.4rem; }
+        .modal-close { background: #2a3a44; border: none; color: #fff; padding: 0.3rem 0.8rem; border-radius: 2rem; cursor: pointer; font-size: 1.2rem; }
+        .modal-close:hover { background: #3d5c7a; }
+        .recharge-card {
+            background: #0b0f14;
+            border: 1px solid #1f2a33;
+            border-radius: 1.2rem;
+            padding: 1rem 1.2rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .recharge-card:hover { border-color: #f7d875; transform: scale(1.01); }
+        .recharge-card .amount { font-size: 1.2rem; font-weight: 700; color: #f7d875; }
+        .recharge-card .gems { font-size: 0.9rem; color: #8ab0c8; }
+        .recharge-card .bonus { font-size: 0.7rem; color: #4ade80; }
+        .recharge-card .select-btn {
+            background: linear-gradient(135deg, #f7d875, #e8b84d);
+            border: none;
+            color: #0b0f14;
+            padding: 0.3rem 1.2rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+        .recharge-card .select-btn:hover { transform: scale(1.05); }
+        .recharge-note { text-align: center; font-size: 0.7rem; color: #4a6a7a; margin-top: 0.8rem; }
+        .server-msg {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #f87171;
+            margin-top: 0.5rem;
+            min-height: 1.5rem;
         }
     </style>
 </head>
 <body>
-
-<div class="auth-container">
+<div class="app">
     <div class="header">
-        <div class="icon">💎</div>
-        <div class="title">All in One</div>
-        <div class="subtitle">Login to start playing</div>
+        <div class="left">
+            <span class="icon">💎</span>
+            <span class="title">All in One</span>
+        </div>
+        <div>
+            <span class="user-info" id="userDisplay">👤 <span id="usernameDisplay">User</span></span>
+            <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+        </div>
     </div>
 
-    <div class="tab-bar">
-        <button class="tab-btn active" data-tab="login">Login</button>
-        <button class="tab-btn" data-tab="register">Register</button>
+    <div class="status-bar">
+        <span>🟢 Connected · ID: <span id="playerIdDisplay">---</span></span>
+        <span>👥 <span id="playerCount">0</span> online</span>
+        <span class="streak-badge" id="streakDisplay">🔥 Streak: 0</span>
     </div>
 
-    <!-- Login Form -->
-    <div id="loginForm">
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" id="loginUsername" placeholder="Enter username" />
+    <div class="main-grid">
+        <div class="player-section" id="mySection">
+            <div class="balance-box">
+                <div class="balance-label">💰 Your Balance</div>
+                <div class="balance-amount" id="balanceDisplay">₿ 1,000</div>
+                <button class="recharge-btn" id="rechargeBtn">➕ Recharge</button>
+            </div>
+            <div class="current-player-box">
+                <div class="label">🎯 Current Player</div>
+                <div class="player-name" id="currentPlayerDisplay">---</div>
+                <button class="random-btn" id="randomPlayerBtn">🎲 Random</button>
+            </div>
+            <div class="bonus-display" id="bonusDisplay">🎁 Daily Bonus: 0 GEM</div>
+            <div class="timer-display" id="timerDisplay">⏱️ 1m 0s</div>
+            <div class="moves-display" id="movesDisplay">Moves: 0</div>
+            <div class="puzzle-grid" id="puzzleGrid"></div>
+            <div class="difficulty-row" id="difficultyRow">
+                <button class="diff-btn easy active" data-diff="easy">🟢 1 Min</button>
+                <button class="diff-btn medium" data-diff="medium">🟡 2 Min</button>
+                <button class="diff-btn hard" data-diff="hard">🔴 3 Min</button>
+            </div>
+            <div class="bet-row" id="betRow">
+                <button class="bet-btn active" data-bet="2">₿ 2</button>
+                <button class="bet-btn" data-bet="5">₿ 5</button>
+                <button class="bet-btn" data-bet="10">₿ 10</button>
+                <button class="bet-btn" data-bet="15">₿ 15</button>
+            </div>
+            <div class="action-row">
+                <button class="spin-btn" id="spinBtn">🎲 Place Bet</button>
+                <button class="reset-btn" id="resetBtn">↺ Reset</button>
+            </div>
+            <div class="result-msg" id="resultMsg">Place your bet & solve the puzzle!</div>
+            <div class="server-msg" id="serverMsg"></div>
         </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="loginPassword" placeholder="Enter password" />
+        <div class="player-section">
+            <h3 style="font-size:0.9rem; color:#8ab0c8; margin-bottom:0.8rem;">👥 Other Players</h3>
+            <div id="otherPlayersContainer">
+                <div style="color:#4a6a7a; font-size:0.8rem; text-align:center;">Waiting for other players...</div>
+            </div>
         </div>
-        <button class="auth-btn" id="loginBtn">🔑 Login</button>
-        <div class="message" id="loginMessage"></div>
     </div>
+    <div class="footer">All in One · Multiplayer Betting · Real-time</div>
+</div>
 
-    <!-- Register Form -->
-    <div id="registerForm" style="display:none;">
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" id="registerUsername" placeholder="Choose username" />
+<div class="modal-overlay" id="rechargeModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>💎 Recharge</h2>
+            <button class="modal-close" id="closeModal">✕</button>
         </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="registerPassword" placeholder="Choose password" />
+        <div id="rechargePackages">
+            <div class="recharge-card" data-amount="100" data-gems="120">
+                <div><div class="amount">₹100</div><div class="gems">120 GEM</div><div class="bonus">+20 Bonus</div></div>
+                <button class="select-btn">Select</button>
+            </div>
+            <div class="recharge-card" data-amount="200" data-gems="250">
+                <div><div class="amount">₹200</div><div class="gems">250 GEM</div><div class="bonus">+50 Bonus</div></div>
+                <button class="select-btn">Select</button>
+            </div>
+            <div class="recharge-card" data-amount="500" data-gems="650">
+                <div><div class="amount">₹500</div><div class="gems">650 GEM</div><div class="bonus">+150 Bonus</div></div>
+                <button class="select-btn">Select</button>
+            </div>
+            <div class="recharge-card" data-amount="1000" data-gems="1400">
+                <div><div class="amount">₹1000</div><div class="gems">1400 GEM</div><div class="bonus">+400 Bonus</div></div>
+                <button class="select-btn">Select</button>
+            </div>
+            <div class="recharge-card" data-amount="2000" data-gems="3000">
+                <div><div class="amount">₹2000</div><div class="gems">3000 GEM</div><div class="bonus">+1000 Bonus</div></div>
+                <button class="select-btn">Select</button>
+            </div>
+            <div class="recharge-card" data-amount="5000" data-gems="8000">
+                <div><div class="amount">₹5000</div><div class="gems">8000 GEM</div><div class="bonus">+3000 Bonus</div></div>
+                <button class="select-btn">Select</button>
+            </div>
         </div>
-        <button class="auth-btn" id="registerBtn">📝 Register</button>
-        <div class="message" id="registerMessage"></div>
+        <div class="recharge-note">💳 Payment gateway coming soon. Currently UI demo only.</div>
     </div>
-
-    <div class="footer">All in One · Secure Login</div>
 </div>
 
 <script>
     (function() {
         "use strict";
 
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
-        const loginMessage = document.getElementById('loginMessage');
-        const registerMessage = document.getElementById('registerMessage');
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username') || localStorage.getItem('username') || 'Guest';
+        document.getElementById('usernameDisplay').textContent = username;
 
-        // ---- Tab switching ----
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                tabBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                if (this.dataset.tab === 'login') {
-                    loginForm.style.display = 'block';
-                    registerForm.style.display = 'none';
-                    loginMessage.textContent = '';
-                    loginMessage.className = 'message';
-                } else {
-                    loginForm.style.display = 'none';
-                    registerForm.style.display = 'block';
-                    registerMessage.textContent = '';
-                    registerMessage.className = 'message';
-                }
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('username');
+            window.location.href = '/login.html';
+        });
+
+        const socket = io({ query: { username: username } });
+
+        const balanceDisplay = document.getElementById('balanceDisplay');
+        const playerIdDisplay = document.getElementById('playerIdDisplay');
+        const playerCount = document.getElementById('playerCount');
+        const resultMsg = document.getElementById('resultMsg');
+        const spinBtn = document.getElementById('spinBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const puzzleGrid = document.getElementById('puzzleGrid');
+        const betBtns = document.querySelectorAll('.bet-btn');
+        const diffBtns = document.querySelectorAll('.diff-btn');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const movesDisplay = document.getElementById('movesDisplay');
+        const bonusDisplay = document.getElementById('bonusDisplay');
+        const streakDisplay = document.getElementById('streakDisplay');
+        const otherPlayersContainer = document.getElementById('otherPlayersContainer');
+        const currentPlayerDisplay = document.getElementById('currentPlayerDisplay');
+        const randomPlayerBtn = document.getElementById('randomPlayerBtn');
+        const rechargeBtn = document.getElementById('rechargeBtn');
+        const rechargeModal = document.getElementById('rechargeModal');
+        const closeModal = document.getElementById('closeModal');
+        const serverMsg = document.getElementById('serverMsg');
+
+        let myId = null;
+        let balance = 1000;
+        let currentBet = 2;
+        let currentDifficulty = 'easy';
+        let puzzleState = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+        let gameActive = false;
+        let moves = 0;
+        let timer = 60;
+        let timerInterval = null;
+        let allPlayers = {};
+        let currentTurnPlayer = null;
+
+        const DIFFICULTY = {
+            easy: { time: 60, label: '1 Min', multiplier: 2 },
+            medium: { time: 120, label: '2 Min', multiplier: 3 },
+            hard: { time: 180, label: '3 Min', multiplier: 4 }
+        };
+
+        document.querySelectorAll('.recharge-card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                const amount = this.dataset.amount;
+                const gems = this.dataset.gems;
+                balance += parseInt(gems);
+                updateBalance();
+                resultMsg.textContent = '💎 Recharged ₹' + amount + '! +' + gems + ' GEM';
+                rechargeModal.classList.remove('active');
+                socket.emit('recharge', { amount: amount, gems: gems });
             });
         });
 
-        // ---- Register ----
-        registerBtn.addEventListener('click', async function() {
-            const username = document.getElementById('registerUsername').value.trim();
-            const password = document.getElementById('registerPassword').value.trim();
-            if (!username || !password) {
-                registerMessage.textContent = 'Please fill all fields';
-                registerMessage.className = 'message error';
+        rechargeBtn.addEventListener('click', function() { rechargeModal.classList.add('active'); });
+        closeModal.addEventListener('click', function() { rechargeModal.classList.remove('active'); });
+        rechargeModal.addEventListener('click', function(e) { if (e.target === this) rechargeModal.classList.remove('active'); });
+
+        function renderPuzzle() {
+            puzzleGrid.innerHTML = '';
+            puzzleState.forEach((val, idx) => {
+                const tile = document.createElement('div');
+                tile.className = 'puzzle-tile';
+                if (val === 0) {
+                    tile.classList.add('empty');
+                    tile.textContent = '';
+                } else {
+                    tile.textContent = val;
+                    tile.dataset.index = idx;
+                    tile.addEventListener('click', function() {
+                        handleTileClick(parseInt(this.dataset.index));
+                    });
+                }
+                puzzleGrid.appendChild(tile);
+            });
+        }
+
+        function handleTileClick(idx) {
+            if (!gameActive) {
+                resultMsg.textContent = '⚠️ Place a bet first!';
                 return;
             }
-            try {
-                const res = await fetch('/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    registerMessage.textContent = '✅ Registration successful! Please login.';
-                    registerMessage.className = 'message';
-                    // Switch to login tab
-                    tabBtns.forEach(b => b.classList.remove('active'));
-                    document.querySelector('[data-tab="login"]').classList.add('active');
-                    loginForm.style.display = 'block';
-                    registerForm.style.display = 'none';
-                    document.getElementById('loginUsername').value = username;
-                    document.getElementById('loginPassword').value = '';
-                    loginMessage.textContent = '✅ Registered! Please login.';
-                    loginMessage.className = 'message';
-                } else {
-                    registerMessage.textContent = '❌ ' + data.message;
-                    registerMessage.className = 'message error';
-                }
-            } catch (err) {
-                registerMessage.textContent = '❌ Server error. Please try again.';
-                registerMessage.className = 'message error';
-            }
-        });
-
-        // ---- Login ----
-        loginBtn.addEventListener('click', async function() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-            if (!username || !password) {
-                loginMessage.textContent = 'Please fill all fields';
-                loginMessage.className = 'message error';
+            if (currentTurnPlayer && currentTurnPlayer !== myId) {
+                resultMsg.textContent = '⏳ Wait for your turn!';
                 return;
             }
-            try {
-                const res = await fetch('/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    loginMessage.textContent = '✅ Login successful! Redirecting...';
-                    loginMessage.className = 'message';
-                    // Store username and redirect to game
-                    localStorage.setItem('username', username);
-                    setTimeout(() => {
-                        window.location.href = '/game.html?username=' + encodeURIComponent(username);
-                    }, 1000);
-                } else {
-                    loginMessage.textContent = '❌ ' + data.message;
-                    loginMessage.className = 'message error';
+            const emptyIdx = puzzleState.indexOf(0);
+            const row = Math.floor(idx / 3);
+            const col = idx % 3;
+            const emptyRow = Math.floor(emptyIdx / 3);
+            const emptyCol = emptyIdx % 3;
+            const rowDiff = Math.abs(row - emptyRow);
+            const colDiff = Math.abs(col - emptyCol);
+            if ((rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)) {
+                [puzzleState[idx], puzzleState[emptyIdx]] = [puzzleState[emptyIdx], puzzleState[idx]];
+                moves++;
+                movesDisplay.textContent = 'Moves: ' + moves;
+                renderPuzzle();
+                socket.emit('puzzleMove', { puzzle: puzzleState, difficulty: currentDifficulty });
+                checkWin();
+            } else {
+                resultMsg.textContent = '❌ Move only adjacent tile!';
+            }
+        }
+
+        function checkWin() {
+            const solved = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+            if (JSON.stringify(puzzleState) === JSON.stringify(solved)) {
+                const multiplier = DIFFICULTY[currentDifficulty].multiplier;
+                const winAmount = currentBet * multiplier;
+                resultMsg.textContent = '🎉 PUZZLE SOLVED! You won ₿' + winAmount + '!';
+                gameActive = false;
+                spinBtn.disabled = false;
+                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+                socket.emit('puzzleWin', { bet: currentBet, win: winAmount, difficulty: currentDifficulty });
+            }
+        }
+
+        function updateBalance() { balanceDisplay.textContent = '₿ ' + balance; }
+
+        function shufflePuzzle() {
+            let arr = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            let inversions = 0;
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = i + 1; j < arr.length; j++) {
+                    if (arr[i] && arr[j] && arr[i] > arr[j]) inversions++;
                 }
-            } catch (err) {
-                loginMessage.textContent = '❌ Server error. Please try again.';
-                loginMessage.className = 'message error';
+            }
+            if (inversions % 2 !== 0) {
+                const idx1 = arr.findIndex(v => v !== 0);
+                const idx2 = arr.findIndex((v, i) => v !== 0 && i > idx1);
+                if (idx1 !== -1 && idx2 !== -1) {
+                    [arr[idx1], arr[idx2]] = [arr[idx2], arr[idx1]];
+                }
+            }
+            puzzleState = arr;
+            renderPuzzle();
+        }
+
+        function startLocalTimer(seconds) {
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            timer = seconds;
+            updateTimerDisplay();
+            timerInterval = setInterval(function() {
+                timer--;
+                updateTimerDisplay();
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    if (gameActive) {
+                        gameActive = false;
+                        spinBtn.disabled = false;
+                        resultMsg.textContent = '⏰ Time\'s up!';
+                        socket.emit('timeUp', {});
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timer / 60);
+            const secs = timer % 60;
+            timerDisplay.textContent = '⏱️ ' + mins + 'm ' + secs + 's';
+            timerDisplay.style.color = timer <= 10 ? '#ff6b6b' : '#f7d875';
+        }
+
+        function selectRandomPlayer() {
+            const playerIds = Object.keys(allPlayers);
+            if (playerIds.length === 0) {
+                currentPlayerDisplay.textContent = 'No players';
+                return;
+            }
+            const randomId = playerIds[Math.floor(Math.random() * playerIds.length)];
+            currentTurnPlayer = randomId;
+            const displayName = randomId === myId ? 'You' : allPlayers[randomId]?.username || randomId.slice(0, 6);
+            currentPlayerDisplay.textContent = displayName;
+            resultMsg.textContent = '🎯 ' + displayName + '\'s turn!';
+            socket.emit('setTurn', { playerId: randomId });
+        }
+
+        function placeBet() {
+            if (balance < currentBet) {
+                resultMsg.textContent = '❌ Insufficient balance!';
+                return;
+            }
+            currentTurnPlayer = myId;
+            currentPlayerDisplay.textContent = 'You';
+            socket.emit('setTurn', { playerId: myId });
+            socket.emit('placeBet', { bet: currentBet, difficulty: currentDifficulty });
+            const timeInSeconds = DIFFICULTY[currentDifficulty].time;
+            startLocalTimer(timeInSeconds);
+        }
+
+        function resetGame() {
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            socket.emit('resetGame');
+        }
+
+        function renderOtherPlayers(playersData, excludeId) {
+            allPlayers = playersData;
+            const entries = Object.entries(playersData).filter(function(item) { return item[0] !== excludeId; });
+            if (entries.length === 0) {
+                otherPlayersContainer.innerHTML = '<div style="color:#4a6a7a; font-size:0.8rem; text-align:center;">No other players online</div>';
+                return;
+            }
+            let html = '';
+            entries.forEach(function(item) {
+                const id = item[0];
+                const data = item[1];
+                const isActive = data.gameActive ? 'active' : '';
+                const puzzleStr = data.puzzle ? data.puzzle.join(' ') : '---';
+                const diff = data.difficulty || 'easy';
+                const diffLabel = DIFFICULTY[diff] ? DIFFICULTY[diff].label : 'Easy';
+                const isTurn = (currentTurnPlayer === id) ? ' 👑' : '';
+                const displayName = data.username || id.slice(0,6);
+                html += `
+                    <div class="other-player-card">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; flex-wrap:wrap; gap:0.3rem;">
+                            <span class="player-tag ${isActive}">🟢 ${displayName}${isTurn}</span>
+                            <span style="color:#f7d875;">₿${data.balance || 0}</span>
+                            <span style="color:#6a8a9a;">Bet: ₿${data.bet || 0}</span>
+                            <span style="color:#4a6a7a;">⏱️ ${data.timer || 60}s</span>
+                            <span class="diff-tag ${diff}">${diffLabel}</span>
+                        </div>
+                        <div style="font-size:0.6rem; color:#4a6a7a; margin-top:0.2rem;">
+                            Moves: ${data.moves || 0} · ${data.gameActive ? '🎯 Playing' : '⏸️ Waiting'}
+                        </div>
+                        <div class="puzzle-mini">Puzzle: ${puzzleStr}</div>
+                    </div>
+                `;
+            });
+            otherPlayersContainer.innerHTML = html;
+        }
+
+        socket.on('connect', function() {
+            myId = socket.id;
+            playerIdDisplay.textContent = myId.slice(0, 6);
+        });
+
+        socket.on('init', function(data) {
+            balance = data.balance || 1000;
+            myId = data.id || socket.id;
+            if (data.loginStreak !== undefined) {
+                streakDisplay.textContent = '🔥 Streak: ' + data.loginStreak;
+            }
+            updateBalance();
+            shufflePuzzle();
+            spinBtn.disabled = false;
+            timerDisplay.textContent = '⏱️ 1m 0s';
+            document.getElementById('usernameDisplay').textContent = data.username || username;
+        });
+
+        socket.on('dailyBonus', function(data) {
+            if (data.bonus > 0) {
+                bonusDisplay.textContent = '🎁 Daily Bonus: +' + data.bonus + ' GEM!';
+                bonusDisplay.style.color = '#4ade80';
+                setTimeout(function() {
+                    bonusDisplay.textContent = '🎁 Daily Bonus: 0 GEM';
+                }, 5000);
+                if (data.streak !== undefined) {
+                    streakDisplay.textContent = '🔥 Streak: ' + data.streak;
+                }
             }
         });
 
-        // Enter key support
-        document.getElementById('loginPassword').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') loginBtn.click();
-        });
-        document.getElementById('registerPassword').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') registerBtn.click();
+        socket.on('gameState', function(data) {
+            const count = Object.keys(data.players).length;
+            playerCount.textContent = count;
+            if (data.currentTurn) {
+                currentTurnPlayer = data.currentTurn;
+                const displayName = currentTurnPlayer === myId ? 'You' : (data.players[currentTurnPlayer]?.username || currentTurnPlayer.slice(0,6));
+                currentPlayerDisplay.textContent = displayName;
+            }
+            if (data.players[myId]) {
+                const myData = data.players[myId];
+                balance = myData.balance;
+                updateBalance();
+                if (myData.puzzle && JSON.stringify(myData.puzzle) !== JSON.stringify(puzzleState)) {
+                    puzzleState = myData.puzzle;
+                    renderPuzzle();
+                }
+                gameActive = myData.gameActive || false;
+                moves = myData.moves || 0;
+                movesDisplay.textContent = 'Moves: ' + moves;
+                timer = myData.timer || DIFFICULTY[currentDifficulty].time;
+                updateTimerDisplay();
+                spinBtn.disabled = gameActive;
+                if (!gameActive) {
+                    resultMsg.textContent = 'Place your bet & solve the puzzle!';
+                }
+            }
+            renderOtherPlayers(data.players, myId);
         });
 
+        socket.on('gameUpdate', function(data) {
+            if (data.type === 'win') {
+                const multiplier = DIFFICULTY[currentDifficulty].multiplier;
+                const winAmount = currentBet * multiplier;
+                resultMsg.textContent = '🎉 You won ₿' + winAmount + ' in ' + (data.moves || 0) + ' moves!';
+                spinBtn.disabled = false;
+                gameActive = false;
+                balance += winAmount;
+                updateBalance();
+                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            } else if (data.type === 'timeout') {
+                resultMsg.textContent = '⏰ Time\'s up! Refunded ₿' + data.refund;
+                spinBtn.disabled = false;
+                gameActive = false;
+                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            } else if (data.type === 'turn') {
+                const displayName = data.playerId === myId ? 'You' : (allPlayers[data.playerId]?.username || data.playerId.slice(0,6));
+                currentTurnPlayer = data.playerId;
+                currentPlayerDisplay.textContent = displayName;
+                resultMsg.textContent = '🎯 ' + displayName + '\'s turn!';
+            }
+        });
+
+        socket.on('timerUpdate', function(data) {
+            if (data.playerId === myId) {
+                timer = data.timer;
+                updateTimerDisplay();
+            }
+        });
+
+        socket.on('balanceUpdate', function(data) {
+            if (data.playerId === myId) {
+                balance = data.balance;
+                updateBalance();
+            }
+        });
+
+        socket.on('error', function(data) {
+            serverMsg.textContent = '❌ ' + data.message;
+            setTimeout(function() { serverMsg.textContent = ''; }, 5000);
+        });
+
+        socket.on('timeUp', function() {
+            if (gameActive) {
+                gameActive = false;
+                spinBtn.disabled = false;
+                resultMsg.textContent = '⏰ Time\'s up!';
+                if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            }
+        });
+
+        betBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                betBtns.forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+                currentBet = parseInt(this.dataset.bet);
+            });
+        });
+
+        diffBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                diffBtns.forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+                currentDifficulty = this.dataset.diff;
+                const timeInSeconds = DIFFICULTY[currentDifficulty].time;
+                timer = timeInSeconds;
+                updateTimerDisplay();
+                resultMsg.textContent = 'Difficulty: ' + DIFFICULTY[currentDifficulty].label + ' (Multiplier: ' + DIFFICULTY[currentDifficulty].multiplier + 'x)';
+            });
+        });
+
+        spinBtn.addEventListener('click', placeBet);
+        resetBtn.addEventListener('click', resetGame);
+        randomPlayerBtn.addEventListener('click', selectRandomPlayer);
+
+        shufflePuzzle();
+        updateBalance();
+        timerDisplay.textContent = '⏱️ 1m 0s';
+        resultMsg.textContent = 'Difficulty: 1 Min (Multiplier: 2x)';
+        currentPlayerDisplay.textContent = '---';
     })();
 </script>
 </body>

@@ -22,9 +22,9 @@ try {
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// ---------- ROOT ROUTE (FIX FOR "NOT FOUND") ----------
+// ---------- ROOT ROUTE ----------
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 // ---------- Database ----------
@@ -183,7 +183,6 @@ function clearTimer(playerId) {
     }
 }
 
-// ---------- Socket.io Setup ----------
 function setupSocket(io) {
     io.on('connection', (socket) => {
         console.log(`🟢 Player connected: ${socket.id}`);
