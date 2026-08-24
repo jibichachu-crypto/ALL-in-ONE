@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>All in One · Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body {
+            background: #0a0c0f;
+            color: #eaeef2;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.2rem;
+        }
+        .auth-container {
+            max-width: 400px;
+            width: 100%;
+            background: #12171d;
+            border-radius: 2.5rem;
+            border: 1px solid #1f2a33;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .icon { font-size: 2.5rem; }
+        .title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f7d875, #f0b84d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: 0.85rem;
+            color: #6a8a9a;
+            margin-top: 0.3rem;
+        }
+        .tab-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 0.6rem;
+            background: #0b0f14;
+            border: 1px solid #1f2a33;
+            border-radius: 2rem;
+            color: #8ab0c8;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: #2a4055;
+            border-color: #4a7a9a;
+            color: #fff;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #6a8a9a;
+            margin-bottom: 0.3rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: #0b0f14;
+            border: 1px solid #1f2a33;
+            border-radius: 2rem;
+            color: #fff;
+            outline: none;
+            font-size: 0.95rem;
+        }
+        .form-group input:focus {
+            border-color: #4a7a9a;
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 0.7rem;
+            background: linear-gradient(135deg, #f7d875, #e8b84d);
+            border: none;
+            border-radius: 2rem;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0b0f14;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .auth-btn:hover { transform: scale(1.02); }
+        .message {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            min-height: 1.5rem;
+            color: #4ade80;
+        }
+        .message.error { color: #f87171; }
+        .footer {
+            text-align: center;
+            font-size: 0.6rem;
+            color: #2a4555;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="header">
+        <div class="icon">💎</div>
+        <div class="title">All in One</div>
+        <div class="subtitle">Login to start playing</div>
+    </div>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" data-tab="login">Login</button>
+        <button class="tab-btn" data-tab="register">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm">
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="loginUsername" placeholder="Enter username" />
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter password" />
+        </div>
+        <button class="auth-btn" id="loginBtn">🔑 Login</button>
+        <div class="message" id="loginMessage"></div>
+    </div>
+
+    <!-- Register Form -->
+    <div id="registerForm" style="display:none;">
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="registerUsername" placeholder="Choose username" />
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="registerPassword" placeholder="Choose password" />
+        </div>
+        <button class="auth-btn" id="registerBtn">📝 Register</button>
+        <div class="message" id="registerMessage"></div>
+    </div>
+
+    <div class="footer">All in One · Secure Login</div>
+</div>
+
+<script>
+    (function() {
+        "use strict";
+
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginMessage = document.getElementById('loginMessage');
+        const registerMessage = document.getElementById('registerMessage');
+
+        // ---- Tab switching ----
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                if (this.dataset.tab === 'login') {
+                    loginForm.style.display = 'block';
+                    registerForm.style.display = 'none';
+                    loginMessage.textContent = '';
+                    loginMessage.className = 'message';
+                } else {
+                    loginForm.style.display = 'none';
+                    registerForm.style.display = 'block';
+                    registerMessage.textContent = '';
+                    registerMessage.className = 'message';
+                }
+            });
+        });
+
+        // ---- Register ----
+        registerBtn.addEventListener('click', async function() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            if (!username || !password) {
+                registerMessage.textContent = 'Please fill all fields';
+                registerMessage.className = 'message error';
+                return;
+            }
+            try {
+                const res = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    registerMessage.textContent = '✅ Registration successful! Please login.';
+                    registerMessage.className = 'message';
+                    // Switch to login tab
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelector('[data-tab="login"]').classList.add('active');
+                    loginForm.style.display = 'block';
+                    registerForm.style.display = 'none';
+                    document.getElementById('loginUsername').value = username;
+                    document.getElementById('loginPassword').value = '';
+                    loginMessage.textContent = '✅ Registered! Please login.';
+                    loginMessage.className = 'message';
+                } else {
+                    registerMessage.textContent = '❌ ' + data.message;
+                    registerMessage.className = 'message error';
+                }
+            } catch (err) {
+                registerMessage.textContent = '❌ Server error. Please try again.';
+                registerMessage.className = 'message error';
+            }
+        });
+
+        // ---- Login ----
+        loginBtn.addEventListener('click', async function() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (!username || !password) {
+                loginMessage.textContent = 'Please fill all fields';
+                loginMessage.className = 'message error';
+                return;
+            }
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    loginMessage.textContent = '✅ Login successful! Redirecting...';
+                    loginMessage.className = 'message';
+                    // Store username and redirect to game
+                    localStorage.setItem('username', username);
+                    setTimeout(() => {
+                        window.location.href = '/game.html?username=' + encodeURIComponent(username);
+                    }, 1000);
+                } else {
+                    loginMessage.textContent = '❌ ' + data.message;
+                    loginMessage.className = 'message error';
+                }
+            } catch (err) {
+                loginMessage.textContent = '❌ Server error. Please try again.';
+                loginMessage.className = 'message error';
+            }
+        });
+
+        // Enter key support
+        document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') loginBtn.click();
+        });
+        document.getElementById('registerPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') registerBtn.click();
+        });
+
+    })();
+</script>
+</body>
+</html>
