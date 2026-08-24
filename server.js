@@ -11,8 +11,8 @@ const app = express();
 let sslOptions = null;
 try {
     sslOptions = {
-        key: fs.readFileSync('localhost-key.pem'),  // ← ഇത് ശരിയാക്കി
-        cert: fs.readFileSync('localhost.pem')      // ← ഇത് ശരിയാക്കി
+        key: fs.readFileSync('localhost-key.pem'),
+        cert: fs.readFileSync('localhost.pem')
     };
     console.log('✅ SSL Certificate loaded successfully');
 } catch (err) {
@@ -21,6 +21,11 @@ try {
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
+
+// ---------- ROOT ROUTE (FIX FOR "NOT FOUND") ----------
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // ---------- Database ----------
 const DB_FILE = path.join(__dirname, 'users.json');
@@ -336,7 +341,7 @@ if (sslOptions) {
     const server = https.createServer(sslOptions, app);
     const io = new socketio.Server(server);
     setupSocket(io);
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
         console.log(`🚀 HTTPS Server running on https://localhost:${PORT}`);
         console.log('💎 All in One · Multiplayer Betting Game (Secure)');
     });
@@ -344,9 +349,8 @@ if (sslOptions) {
     const server = http.createServer(app);
     const io = new socketio.Server(server);
     setupSocket(io);
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
         console.log(`🚀 HTTP Server running on http://localhost:${PORT}`);
-        console.log('⚠️ Running without HTTPS. For production, use SSL certificates.');
         console.log('💎 All in One · Multiplayer Betting Game');
     });
 }
