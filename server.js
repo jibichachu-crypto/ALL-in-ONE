@@ -23,9 +23,21 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 // ---------- ROOT ROUTE (Landing Page) ----------
-// Direct naar de homepage (index.html) gaan
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// ---------- Custom Routes for other pages ----------
+app.get('/register.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'register.html'));
+});
+
+app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+app.get('/game.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'game.html'));
 });
 
 // ---------- Database ----------

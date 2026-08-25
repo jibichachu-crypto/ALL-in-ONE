@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>All in One · Advanced Register</title>
+    <!-- intl-tel-input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css"/>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body {
@@ -88,6 +90,10 @@
         .login-link { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #8ba8b8; }
         .login-link a { color: #f7d875; text-decoration: none; font-weight: 700; }
         .footer { text-align: center; font-size: 0.65rem; color: #2a4555; margin-top: 2rem; letter-spacing: 1px; }
+
+        /* intl-tel-input style overrides */
+        .iti { width: 100%; }
+        .iti__country { color: #000; }
     </style>
 </head>
 <body>
@@ -115,8 +121,8 @@
             </div>
 
             <div class="form-group full-width">
-                <label>📱 Phone Number (For OTP)</label>
-                <input type="tel" id="phone" placeholder="+91 98765 43210" required />
+                <label>📱 Phone Number</label>
+                <input type="tel" id="phone" required />
                 <div class="otp-container" style="margin-top: 10px;">
                     <input type="text" id="otpCode" placeholder="Enter OTP" maxlength="6" style="flex: 1;" />
                     <button type="button" class="otp-btn" id="sendOtpBtn">Send OTP</button>
@@ -141,6 +147,10 @@
     <div class="footer">ALL IN ONE · SECURE SYSTEM v2.0</div>
 </div>
 
+<!-- intl-tel-input JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
+
 <script>
     (function() {
         "use strict";
@@ -151,12 +161,18 @@
         const firstName = document.getElementById('firstName');
         const lastName = document.getElementById('lastName');
         const email = document.getElementById('email');
-        const phone = document.getElementById('phone');
+        const phoneInput = document.getElementById('phone');
         const otpCode = document.getElementById('otpCode');
         const sendOtpBtn = document.getElementById('sendOtpBtn');
         const password = document.getElementById('regPassword');
         const registerBtn = document.getElementById('registerBtn');
         const messageEl = document.getElementById('registerMessage');
+
+        // intl-tel-input initialize (No separateDialCode to ensure proper validation)
+        const iti = window.intlTelInput(phoneInput, {
+            initialCountry: "in",
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+        });
 
         const strengthBar = document.getElementById('strengthBar');
         const strengthText = document.getElementById('strengthText');
@@ -177,39 +193,43 @@
             strengthText.textContent = labels[strength] + ' Password';
         });
 
+        function getFullPhoneNumber() {
+            return iti.getNumber(); // This returns full number with country code
+        }
+
         function validatePhone() {
-            const regex = /^\+?[0-9]{10,15}$/;
-            return regex.test(phone.value.trim());
+            return iti.isValidNumber(); // Validates against the selected country's rules
         }
 
         sendOtpBtn.addEventListener('click', async function() {
             messageEl.className = 'message';
-            messageEl.textContent = '⏳ Sending OTP...';
+            messageEl.textContent = 'Sending OTP...';
 
             if (!validatePhone()) {
-                messageEl.textContent = '❌ Invalid phone number!';
+                messageEl.textContent = 'Invalid phone number!';
                 messageEl.className = 'message error';
                 return;
             }
 
             try {
+                const fullPhone = getFullPhoneNumber();
                 const res = await fetch(API_URL + '/send-otp', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone: phone.value })
+                    body: JSON.stringify({ phone: fullPhone })
                 });
                 const data = await res.json();
 
                 if (data.success) {
-                    messageEl.textContent = '✅ OTP sent to ' + phone.value;
+                    messageEl.textContent = 'OTP sent to ' + fullPhone;
                     otpCode.focus();
                     registerBtn.disabled = false;
                 } else {
-                    messageEl.textContent = '❌ ' + data.message;
+                    messageEl.textContent = data.message;
                     messageEl.className = 'message error';
                 }
             } catch (err) {
-                messageEl.textContent = '❌ Network error. Check server connection.';
+                messageEl.textContent = 'Network error. Check server connection.';
                 messageEl.className = 'message error';
             }
         });
@@ -217,14 +237,14 @@
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             messageEl.className = 'message';
-            messageEl.textContent = '⏳ Verifying & Registering...';
+            messageEl.textContent = 'Verifying & Registering...';
             registerBtn.disabled = true;
 
             const payload = {
                 firstName: firstName.value.trim(),
                 lastName: lastName.value.trim(),
                 email: email.value.trim(),
-                phone: phone.value.trim(),
+                phone: getFullPhoneNumber(),
                 otp: otpCode.value.trim(),
                 password: password.value
             };
@@ -238,16 +258,16 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    messageEl.textContent = '🎉 Registration Successful! Redirecting to Login...';
+                    messageEl.textContent = 'Registration Successful! Redirecting to Login...';
                     messageEl.className = 'message';
                     setTimeout(() => window.location.href = '/login.html', 2000);
                 } else {
-                    messageEl.textContent = '❌ ' + data.message;
+                    messageEl.textContent = data.message;
                     messageEl.className = 'message error';
                     registerBtn.disabled = false;
                 }
             } catch (err) {
-                messageEl.textContent = '❌ Server error. Please try again.';
+                messageEl.textContent = 'Server error. Please try again.';
                 messageEl.className = 'message error';
                 registerBtn.disabled = false;
             }

@@ -10,35 +10,51 @@
             background: radial-gradient(circle at top, #12171d, #0a0c0f);
             color: #eaeef2;
             min-height: 100vh;
+            padding: 2rem;
+        }
+        .header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 3rem;
         }
-        .home-container {
-            max-width: 700px;
-            width: 100%;
-            text-align: center;
-            padding: 3rem 2rem;
-        }
-        .logo { font-size: 5rem; margin-bottom: 1rem; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .title {
-            font-size: 3rem;
+        .header .logo-title {
+            font-size: 2.5rem;
             font-weight: 900;
             background: linear-gradient(135deg, #f7d875, #e8b84d);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
         }
-        .subtitle { font-size: 1.2rem; color: #8ba8b8; margin-bottom: 3rem; }
+        .header .logo-icon {
+            font-size: 2.5rem;
+        }
+        .login-btn {
+            background: #f7d875;
+            color: #0b0f14;
+            border: none;
+            border-radius: 2rem;
+            padding: 0.7rem 1.5rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .login-btn:hover { background: #e8b84d; transform: scale(1.05); }
         
-        .games-grid { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+        .subtitle { font-size: 1.2rem; color: #8ba8b8; margin-bottom: 3rem; text-align: center; }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
         .game-card {
             background: #12171d;
             border: 1px solid #1f2a33;
             border-radius: 2rem;
             padding: 2rem 1.5rem;
-            width: 250px;
+            width: 100%;
             cursor: pointer;
             transition: 0.3s;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -59,22 +75,40 @@
             transition: 0.2s;
         }
         .play-btn:hover { background: #e8b84d; transform: scale(1.05); }
+        
+        .games-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .games-section h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #f7d875;
+        }
     </style>
 </head>
 <body>
-    <div class="home-container">
-        <div class="logo">💎</div>
-        <div class="title">All in One</div>
-        <div class="subtitle">Entertainment. Games. Rewards.</div>
-        
-        <div class="games-grid">
-            <!-- Game Card -->
-            <div class="game-card" onclick="window.location.href='/register.html'">
-                <div class="game-icon">🧩</div>
-                <div class="game-title">8-Puzzle</div>
-                <div class="game-desc">A classic sliding puzzle game. Bet, play and win rewards.</div>
-                <button class="play-btn">Play Now</button>
-            </div>
+    <div class="header">
+        <div>
+            <span class="logo-icon">💎</span>
+            <span class="logo-title">All in One</span>
+        </div>
+        <button class="login-btn" onclick="window.location.href='/login.html'">Login</button>
+    </div>
+    
+    <div class="subtitle">Entertainment. Games. Rewards.</div>
+    
+    <div class="games-section">
+        <h2>Featured Games</h2>
+    </div>
+    
+    <div class="games-grid">
+        <!-- Game Card -->
+        <div class="game-card" onclick="window.location.href='/register.html'">
+            <div class="game-icon">🧩</div>
+            <div class="game-title">8-Puzzle</div>
+            <div class="game-desc">A classic sliding puzzle game. Bet, play and win rewards.</div>
+            <button class="play-btn">Play Now</button>
         </div>
     </div>
 </body>
