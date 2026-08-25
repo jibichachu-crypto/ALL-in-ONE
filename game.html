@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>All in One · Puzzle Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body {
+            background: #0a0c0f;
+            color: #eaeef2;
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .header h1 { background: linear-gradient(135deg, #f7d875, #f0b84d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem; }
+        .user-info { font-size: 0.9rem; color: #8ba8b8; }
+        .logout-btn {
+            padding: 0.5rem 1rem; background: #1f2a33; border: 1px solid #f87171; color: #f87171;
+            border-radius: 1rem; cursor: pointer; font-weight: 600; transition: 0.3s;
+        }
+        .logout-btn:hover { background: #f87171; color: #0b0f14; }
+        
+        .container { display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; }
+        .game-panel {
+            background: #12171d; border-radius: 1.5rem; border: 1px solid #1f2a33;
+            padding: 1.5rem; width: 100%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        .panel-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; color: #f7d875; }
+        
+        .puzzle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+        .tile {
+            aspect-ratio: 1; background: #1f2a33; border-radius: 10px; display: flex;
+            justify-content: center; align-items: center; font-size: 1.8rem; font-weight: 800;
+            cursor: pointer; transition: 0.2s; user-select: none;
+        }
+        .tile:hover { background: #2a4055; }
+        .tile.empty { background: transparent; cursor: default; }
+        
+        .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem; }
+        .controls select, .controls input, .controls button {
+            padding: 0.6rem 1rem; border-radius: 1rem; border: 1px solid #1f2a33;
+            background: #0b0f14; color: #fff; font-size: 0.9rem; outline: none;
+        }
+        .controls button { background: #2a4055; border-color: #4a7a9a; cursor: pointer; font-weight: 700; }
+        .controls button:hover { background: #4a7a9a; }
+        
+        .bet-btn {
+            width: 100%; padding: 0.8rem; background: linear-gradient(135deg, #f7d875, #e8b84d);
+            border: none; border-radius: 1rem; font-weight: 800; font-size: 1rem;
+            color: #0b0f14; cursor: pointer; transition: 0.25s; margin-top: 0.5rem;
+        }
+        .bet-btn:hover { transform: scale(1.02); }
+        .bet-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .stats { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .stat-box { background: #0b0f14; padding: 0.8rem 1.2rem; border-radius: 1rem; flex: 1; min-width: 100px; text-align: center; }
+        .stat-box .label { font-size: 0.7rem; color: #6a8a9a; text-transform: uppercase; }
+        .stat-box .value { font-size: 1.3rem; font-weight: 800; color: #f7d875; }
+        
+        .leaderboard { width: 100%; max-width: 300px; background: #12171d; border-radius: 1.5rem; border: 1px solid #1f2a33; padding: 1.5rem; }
+        .leaderboard h3 { color: #f7d875; margin-bottom: 1rem; }
+        .leaderboard-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #1f2a33; font-size: 0.9rem; }
+        .message { margin-top: 1rem; text-align: center; font-size: 0.9rem; min-height: 1.5rem; color: #4ade80; }
+        .message.error { color: #f87171; }
+        .logs { max-height: 200px; overflow-y: auto; background: #0b0f14; padding: 1rem; border-radius: 1rem; margin-top: 1rem; font-size: 0.85rem; color: #8ba8b8; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💎 All in One - Game</h1>
+        <div>
+            <span class="user-info">Welcome, <strong id="displayUsername">Guest</strong></span>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="game-panel">
+            <div class="panel-title">🧩 8-Puzzle Challenge</div>
+            <div class="stats">
+                <div class="stat-box"><div class="label">Balance</div><div class="value" id="balance">1000</div></div>
+                <div class="stat-box"><div class="label">Moves</div><div class="value" id="moves">0</div></div>
+                <div class="stat-box"><div class="label">Timer</div><div class="value" id="timer">60</div></div>
+            </div>
+            
+            <div class="puzzle-grid" id="puzzleGrid"></div>
+
+            <div class="controls">
+                <select id="difficulty">
+                    <option value="easy">Easy (60s)</option>
+                    <option value="medium">Medium (120s)</option>
+                    <option value="hard">Hard (180s)</option>
+                </select>
+                <input type="number" id="betAmount" placeholder="Bet Amount" value="2" min="1" />
+                <button id="startBetBtn">Place Bet & Play</button>
+            </div>
+            
+            <button class="bet-btn" id="resetGameBtn" style="display:none;">🔄 Reset Game</button>
+            <div class="message" id="gameMessage"></div>
+        </div>
+
+        <div class="leaderboard">
+            <h3>🏆 Live Players</h3>
+            <div id="playersList"></div>
+            <div class="logs" id="logsContainer"></div>
+        </div>
+    </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    (function() {
+        "use strict";
+        
+        const loggedInUsername = localStorage.getItem('username') || 'Guest';
+        document.getElementById('displayUsername').textContent = loggedInUsername;
+
+        const socket = io({
+            query: { username: loggedInUsername }
+        });
+
+        const puzzleGrid = document.getElementById('puzzleGrid');
+        const balanceEl = document.getElementById('balance');
+        const movesEl = document.getElementById('moves');
+        const timerEl = document.getElementById('timer');
+        const gameMessage = document.getElementById('gameMessage');
+        const difficultySelect = document.getElementById('difficulty');
+        const betAmount = document.getElementById('betAmount');
+        const startBetBtn = document.getElementById('startBetBtn');
+        const resetGameBtn = document.getElementById('resetGameBtn');
+        const playersList = document.getElementById('playersList');
+        const logsContainer = document.getElementById('logsContainer');
+
+        let currentPuzzle = [1, 2, 3, 4, 5, 6, 7, 8, 0];
+        let isMyTurn = false;
+        let gameActive = false;
+
+        function renderPuzzle(puzzle) {
+            puzzleGrid.innerHTML = '';
+            puzzle.forEach((tile, index) => {
+                const tileDiv = document.createElement('div');
+                tileDiv.className = tile === 0 ? 'tile empty' : 'tile';
+                tileDiv.textContent = tile === 0 ? '' : tile;
+                tileDiv.dataset.index = index;
+                if (tile !== 0) {
+                    tileDiv.addEventListener('click', () => handleTileClick(index));
+                }
+                puzzleGrid.appendChild(tileDiv);
+            });
+        }
+
+        function handleTileClick(index) {
+            if (!gameActive || !isMyTurn) return;
+            
+            const emptyIndex = currentPuzzle.indexOf(0);
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+            const emptyRow = Math.floor(emptyIndex / 3);
+            const emptyCol = emptyIndex % 3;
+
+            const isAdjacent = (Math.abs(row - emptyRow) === 1 && col === emptyCol) || 
+                               (Math.abs(col - emptyCol) === 1 && row === emptyRow);
+
+            if (isAdjacent) {
+                [currentPuzzle[index], currentPuzzle[emptyIndex]] = [currentPuzzle[emptyIndex], currentPuzzle[index]];
+                renderPuzzle(currentPuzzle);
+                movesEl.textContent = parseInt(movesEl.textContent) + 1;
+                
+                socket.emit('puzzleMove', { puzzle: currentPuzzle });
+                
+                if (JSON.stringify(currentPuzzle) === JSON.stringify([1, 2, 3, 4, 5, 6, 7, 8, 0])) {
+                    gameMessage.textContent = '🎉 Solved!';
+                    gameMessage.className = 'message';
+                }
+            }
+        }
+
+        socket.on('init', (data) => {
+            balanceEl.textContent = data.balance;
+            renderPuzzle(data.puzzle);
+            movesEl.textContent = 0;
+            timerEl.textContent = data.timer || 60;
+        });
+
+        socket.on('balanceUpdate', (data) => {
+            balanceEl.textContent = data.balance;
+        });
+
+        socket.on('gameUpdate', (data) => {
+            if (data.type === 'turn') {
+                isMyTurn = (data.playerId === socket.id);
+                gameMessage.textContent = isMyTurn ? '✅ Your Turn!' : '⏳ Waiting for turn...';
+                gameMessage.className = 'message';
+            } else if (data.type === 'win') {
+                if (data.playerId === socket.id) {
+                    gameMessage.textContent = `🎉 You won ₿${data.win} in ${data.moves} moves!`;
+                    gameMessage.className = 'message';
+                } else {
+                    gameMessage.textContent = `🎉 ${data.playerId.slice(0,6)} won!`;
+                }
+            } else if (data.type === 'timeout') {
+                gameMessage.textContent = '⏰ Time up!';
+                gameMessage.className = 'message error';
+            }
+        });
+
+        socket.on('timerUpdate', (data) => {
+            if (data.playerId === socket.id) {
+                timerEl.textContent = data.timer;
+            }
+        });
+
+        socket.on('gameState', (data) => {
+            playersList.innerHTML = '';
+            for (const id in data.players) {
+                const player = data.players[id];
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                item.innerHTML = `<span>${player.username}</span><span>₿${player.balance}</span>`;
+                playersList.appendChild(item);
+            }
+        });
+
+        socket.on('newLog', (data) => {
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `${data.time} - ${data.message}`;
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        });
+
+        socket.on('error', (data) => {
+            gameMessage.textContent = '❌ ' + data.message;
+            gameMessage.className = 'message error';
+        });
+
+        startBetBtn.addEventListener('click', () => {
+            const bet = parseInt(betAmount.value) || 2;
+            const difficulty = difficultySelect.value;
+            
+            socket.emit('placeBet', { bet, difficulty });
+            
+            balanceEl.textContent = parseInt(balanceEl.textContent) - bet;
+            gameActive = true;
+            isMyTurn = true;
+            movesEl.textContent = 0;
+            timerEl.textContent = difficulty === 'easy' ? 60 : difficulty === 'medium' ? 120 : 180;
+            
+            startBetBtn.disabled = true;
+            resetGameBtn.style.display = 'block';
+            gameMessage.textContent = '💰 Bet placed! Good luck!';
+            gameMessage.className = 'message';
+        });
+
+        resetGameBtn.addEventListener('click', () => {
+            socket.emit('resetGame');
+            startBetBtn.disabled = false;
+            resetGameBtn.style.display = 'none';
+            gameActive = false;
+            isMyTurn = false;
+        });
+
+        const logoutBtn = document.getElementById('logoutBtn');
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('username');
+            window.location.href = '/index.html';
+        });
+
+        renderPuzzle(currentPuzzle);
+    })();
+</script>
+</body>
+</html>

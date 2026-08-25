@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>All in One · Register</title>
+    <title>All in One · Advanced Register</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body {
-            background: #0a0c0f;
+            background: radial-gradient(circle at top left, #12171d, #0a0c0f);
             color: #eaeef2;
             min-height: 100vh;
             display: flex;
@@ -16,54 +16,78 @@
             padding: 1.2rem;
         }
         .auth-container {
-            max-width: 400px;
+            max-width: 480px;
             width: 100%;
-            background: #12171d;
-            border-radius: 2.5rem;
-            border: 1px solid #1f2a33;
+            background: rgba(18, 23, 29, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            border: 1px solid #2a3f4d;
             padding: 2.5rem 2rem;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.05);
         }
         .header { text-align: center; margin-bottom: 2rem; }
-        .icon { font-size: 2.5rem; }
+        .icon { font-size: 2.8rem; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         .title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #f7d875, #f0b84d);
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff, #f7d875);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
-        .subtitle { font-size: 0.85rem; color: #6a8a9a; margin-top: 0.3rem; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; font-size: 0.8rem; color: #6a8a9a; margin-bottom: 0.3rem; }
-        .form-group input {
+        .subtitle { font-size: 0.85rem; color: #8ba8b8; margin-top: 0.3rem; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; font-weight: 600; color: #a0b8c8; margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group input, .form-group select {
             width: 100%;
-            padding: 0.7rem 1rem;
+            padding: 0.85rem 1.2rem;
             background: #0b0f14;
-            border: 1px solid #1f2a33;
-            border-radius: 2rem;
+            border: 1px solid #2a3f4d;
+            border-radius: 1rem;
             color: #fff;
             outline: none;
             font-size: 0.95rem;
+            transition: 0.3s;
         }
-        .form-group input:focus { border-color: #4a7a9a; }
+        .form-group input:focus { border-color: #f7d875; box-shadow: 0 0 10px rgba(247, 216, 117, 0.2); }
+        .full-width { grid-column: span 2; }
+
+        .strength-bar { height: 4px; background: #2a3f4d; border-radius: 2px; margin-top: 5px; transition: 0.3s; }
+        .strength-text { font-size: 0.7rem; margin-top: 4px; text-align: right; color: #6a8a9a; }
+
+        .otp-container { display: flex; gap: 10px; }
+        .otp-container input { text-align: center; letter-spacing: 10px; font-weight: bold; }
+        .otp-btn {
+            background: #1f2a33; border: 1px solid #f7d875; color: #f7d875;
+            padding: 0 15px; border-radius: 1rem; cursor: pointer; font-weight: 700; transition: 0.3s;
+        }
+        .otp-btn:hover { background: #f7d875; color: #0b0f14; }
+
         .auth-btn {
             width: 100%;
-            padding: 0.7rem;
+            padding: 1rem;
             background: linear-gradient(135deg, #f7d875, #e8b84d);
             border: none;
-            border-radius: 2rem;
-            font-weight: 700;
-            font-size: 1rem;
+            border-radius: 1rem;
+            font-weight: 800;
+            font-size: 1.1rem;
             color: #0b0f14;
             cursor: pointer;
             transition: 0.25s;
+            margin-top: 0.5rem;
+            box-shadow: 0 5px 15px rgba(247, 216, 117, 0.2);
         }
-        .auth-btn:hover { transform: scale(1.02); }
-        .message { margin-top: 1rem; text-align: center; font-size: 0.9rem; min-height: 1.5rem; color: #4ade80; }
+        .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(247, 216, 117, 0.4); }
+        .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .message { margin-top: 1rem; text-align: center; font-size: 0.9rem; min-height: 1.5rem; color: #4ade80; font-weight: 600; }
         .message.error { color: #f87171; }
-        .footer { text-align: center; font-size: 0.6rem; color: #2a4555; margin-top: 1.5rem; }
+        .login-link { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #8ba8b8; }
+        .login-link a { color: #f7d875; text-decoration: none; font-weight: 700; }
+        .footer { text-align: center; font-size: 0.65rem; color: #2a4555; margin-top: 2rem; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -71,66 +95,162 @@
     <div class="header">
         <div class="icon">💎</div>
         <div class="title">All in One</div>
-        <div class="subtitle">Create your account</div>
+        <div class="subtitle">Advanced Secure Registration</div>
     </div>
-    <div class="form-group">
-        <label>Username</label>
-        <input type="text" id="regUsername" placeholder="Choose username" />
+
+    <form id="registerForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>👤 First Name</label>
+                <input type="text" id="firstName" placeholder="John" required />
+            </div>
+            <div class="form-group">
+                <label>👥 Last Name</label>
+                <input type="text" id="lastName" placeholder="Doe" required />
+            </div>
+            
+            <div class="form-group full-width">
+                <label>📧 Email Address</label>
+                <input type="email" id="email" placeholder="example@domain.com" required />
+            </div>
+
+            <div class="form-group full-width">
+                <label>📱 Phone Number (For OTP)</label>
+                <input type="tel" id="phone" placeholder="+91 98765 43210" required />
+                <div class="otp-container" style="margin-top: 10px;">
+                    <input type="text" id="otpCode" placeholder="Enter OTP" maxlength="6" style="flex: 1;" />
+                    <button type="button" class="otp-btn" id="sendOtpBtn">Send OTP</button>
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label>🔒 Password</label>
+                <input type="password" id="regPassword" placeholder="Create strong password" required />
+                <div class="strength-bar" id="strengthBar"></div>
+                <div class="strength-text" id="strengthText">Password Strength</div>
+            </div>
+        </div>
+
+        <button type="submit" class="auth-btn" id="registerBtn" disabled>📝 Verify OTP & Register</button>
+        <div class="message" id="registerMessage"></div>
+    </form>
+
+    <div class="login-link">
+        Already have an account? <a href="/login.html">Login here</a>
     </div>
-    <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="regPassword" placeholder="Choose password" />
-    </div>
-    <button class="auth-btn" id="registerBtn">📝 Register</button>
-    <div class="message" id="registerMessage"></div>
-    <div style="text-align:center; margin-top:1rem; font-size:0.8rem;">
-        Already have an account? <a href="/login.html" style="color:#f7d875;">Login</a>
-    </div>
-    <div class="footer">All in One · Secure Registration</div>
+    <div class="footer">ALL IN ONE · SECURE SYSTEM v2.0</div>
 </div>
+
 <script>
     (function() {
         "use strict";
         
-        // ലോക്കൽ ടെസ്റ്റിംഗിന് HTTPS URL
-        const API_URL = 'https://localhost:10000';
+        const API_URL = 'https://localhost:3002';
 
+        const form = document.getElementById('registerForm');
+        const firstName = document.getElementById('firstName');
+        const lastName = document.getElementById('lastName');
+        const email = document.getElementById('email');
+        const phone = document.getElementById('phone');
+        const otpCode = document.getElementById('otpCode');
+        const sendOtpBtn = document.getElementById('sendOtpBtn');
+        const password = document.getElementById('regPassword');
         const registerBtn = document.getElementById('registerBtn');
-        const registerMessage = document.getElementById('registerMessage');
+        const messageEl = document.getElementById('registerMessage');
 
-        registerBtn.addEventListener('click', async function() {
-            const username = document.getElementById('regUsername').value.trim();
-            const password = document.getElementById('regPassword').value.trim();
-            if (!username || !password) {
-                registerMessage.textContent = 'Please fill all fields';
-                registerMessage.className = 'message error';
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+        
+        password.addEventListener('input', function() {
+            let strength = 0;
+            if (password.value.length > 5) strength += 1;
+            if (password.value.length > 10) strength += 1;
+            if (/[A-Z]/.test(password.value) && /[a-z]/.test(password.value)) strength += 1;
+            if (/[0-9]/.test(password.value)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password.value)) strength += 1;
+
+            const colors = ['#f87171', '#f87171', '#fbbf24', '#4ade80', '#22d3ee', '#a78bfa'];
+            const labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Elite'];
+
+            strengthBar.style.width = (strength * 20) + '%';
+            strengthBar.style.backgroundColor = colors[strength];
+            strengthText.textContent = labels[strength] + ' Password';
+        });
+
+        function validatePhone() {
+            const regex = /^\+?[0-9]{10,15}$/;
+            return regex.test(phone.value.trim());
+        }
+
+        sendOtpBtn.addEventListener('click', async function() {
+            messageEl.className = 'message';
+            messageEl.textContent = '⏳ Sending OTP...';
+
+            if (!validatePhone()) {
+                messageEl.textContent = '❌ Invalid phone number!';
+                messageEl.className = 'message error';
                 return;
             }
+
+            try {
+                const res = await fetch(API_URL + '/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phone.value })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    messageEl.textContent = '✅ OTP sent to ' + phone.value;
+                    otpCode.focus();
+                    registerBtn.disabled = false;
+                } else {
+                    messageEl.textContent = '❌ ' + data.message;
+                    messageEl.className = 'message error';
+                }
+            } catch (err) {
+                messageEl.textContent = '❌ Network error. Check server connection.';
+                messageEl.className = 'message error';
+            }
+        });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            messageEl.className = 'message';
+            messageEl.textContent = '⏳ Verifying & Registering...';
+            registerBtn.disabled = true;
+
+            const payload = {
+                firstName: firstName.value.trim(),
+                lastName: lastName.value.trim(),
+                email: email.value.trim(),
+                phone: phone.value.trim(),
+                otp: otpCode.value.trim(),
+                password: password.value
+            };
+
             try {
                 const res = await fetch(API_URL + '/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
+                
                 if (data.success) {
-                    registerMessage.textContent = '✅ Registration successful! Redirecting to login...';
-                    registerMessage.className = 'message';
-                    setTimeout(() => {
-                        window.location.href = '/login.html';
-                    }, 1500);
+                    messageEl.textContent = '🎉 Registration Successful! Redirecting to Login...';
+                    messageEl.className = 'message';
+                    setTimeout(() => window.location.href = '/login.html', 2000);
                 } else {
-                    registerMessage.textContent = '❌ ' + data.message;
-                    registerMessage.className = 'message error';
+                    messageEl.textContent = '❌ ' + data.message;
+                    messageEl.className = 'message error';
+                    registerBtn.disabled = false;
                 }
             } catch (err) {
-                registerMessage.textContent = '❌ Server error. Please try again.';
-                registerMessage.className = 'message error';
+                messageEl.textContent = '❌ Server error. Please try again.';
+                messageEl.className = 'message error';
+                registerBtn.disabled = false;
             }
-        });
-
-        document.getElementById('regPassword').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') registerBtn.click();
         });
     })();
 </script>

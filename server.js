@@ -1,35 +1,34 @@
 const express = require('express');
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const socketio = require('socket.io');
 const path = require('path');
 
 const app = express();
 
-// ---------- SSL Certificate (Required) ----------
-let sslOptions;
+// ---------- SSL Certificate ----------
+let sslOptions = null;
 try {
     sslOptions = {
-        key: fs.readFileSync(path.join(__dirname, 'localhost-key.pem')),
-        cert: fs.readFileSync(path.join(__dirname, 'localhost.pem'))
+        key: fs.readFileSync('localhost-key.pem'),
+        cert: fs.readFileSync('localhost.pem')
     };
-    console.log('✅ HTTPS SSL Certificate loaded successfully.');
+    console.log('✅ SSL Certificate loaded successfully');
 } catch (err) {
-    console.error('❌ FATAL ERROR: localhost-key.pem or localhost.pem not found!');
-    console.error('Please run: openssl req -x509 -newkey rsa:2048 -keyout localhost-key.pem -out localhost.pem -days 365 -nodes');
-    process.exit(1); // SSL ഇല്ലെങ്കിൽ ആപ്പ് പ്രവർത്തിപ്പിക്കില്ല
+    console.log('⚠️ SSL Certificate not found. Running without HTTPS (HTTP only)');
 }
 
-// ---------- Middleware ----------
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// ---------- ROOT ROUTE ----------
+// ---------- ROOT ROUTE (Landing Page) ----------
+// Direct naar de homepage (index.html) gaan
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'login.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// ---------- Database (JSON File) ----------
+// ---------- Database ----------
 const DB_FILE = path.join(__dirname, 'users.json');
 
 function readUsers() {
@@ -45,37 +44,96 @@ function writeUsers(users) {
     fs.writeFileSync(DB_FILE, JSON.stringify(users, null, 2));
 }
 
-// ---------- Auth Routes ----------
+// ---------- Auth Routes (Advanced) ----------
+
+// Temporary OTP Store (In-memory)
+const otpStore = {};
+
+// 1. Send OTP Endpoint
+app.post('/send-otp', (req, res) => {
+    const { phone } = req.body;
+    if (!phone) {
+        return res.status(400).json({ success: false, message: 'Phone number is required' });
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // NOTE: Here you should integrate your SMS API (e.g., Twilio, MSG91).
+    // For testing, we print it to the console.
+    console.log(`OTP for ${phone} is: ${otp}`);
+
+    // Save OTP with 5-minute expiry
+    otpStore[phone] = { otp, expires: Date.now() + 300000 };
+
+    res.json({ success: true, message: 'OTP sent successfully' });
+});
+
+// 2. Register Endpoint (Updated)
 app.post('/register', (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'Username and password required' });
+    const { firstName, lastName, email, phone, otp, password } = req.body;
+
+    // Validate required fields
+    if (!firstName || !lastName || !email || !phone || !otp || !password) {
+        return res.status(400).json({ success: false, message: 'All fields are required' });
     }
+
+    // Verify OTP
+    const storedOtp = otpStore[phone];
+    if (!storedOtp || storedOtp.otp !== otp) {
+        return res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
+    }
+    if (Date.now() > storedOtp.expires) {
+        delete otpStore[phone];
+        return res.status(400).json({ success: false, message: 'OTP expired. Please request a new one.' });
+    }
+
+    // Read existing users
     const users = readUsers();
-    if (users[username]) {
-        return res.status(400).json({ success: false, message: 'Username already exists' });
+    
+    // Check if username already exists (Using email as unique username)
+    if (users[email]) {
+        return res.status(400).json({ success: false, message: 'Email already registered' });
     }
-    users[username] = {
-        password: password,
+
+    // Save new user to database
+    users[email] = {
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        phone: phone,
+        password: password, // Warning: In production, always hash passwords (e.g., bcrypt)
         balance: 1000,
         loginStreak: 0,
-        lastLoginDate: null
+        lastLoginDate: null,
+        createdAt: new Date().toISOString()
     };
     writeUsers(users);
+
+    // Clear the OTP after successful registration
+    delete otpStore[phone];
+
     res.json({ success: true, message: 'Registration successful!' });
 });
 
+// 3. Login Endpoint (Updated to support both Username and Email)
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ success: false, message: 'Username and password required' });
+    const { email, username, password } = req.body;
+    const identifier = email || username; // ഏതാണ് വന്നത് എന്ന് നോക്കും
+    
+    if (!identifier || !password) {
+        return res.status(400).json({ success: false, message: 'Login ID and password required' });
     }
+    
     const users = readUsers();
-    const user = users[username];
+    
+    // ആദ്യം email-ൽ നോക്കും, ഇല്ലെങ്കിൽ username-ൽ നോക്കും
+    const user = users[identifier]; 
+    
     if (!user || user.password !== password) {
-        return res.status(401).json({ success: false, message: 'Invalid username or password' });
+        return res.status(401).json({ success: false, message: 'Invalid login ID or password' });
     }
-    res.json({ success: true, message: 'Login successful!', username });
+    res.json({ success: true, message: 'Login successful!', email: identifier });
 });
 
 // ---------- Game State ----------
@@ -335,23 +393,23 @@ function setupSocket(io) {
     });
 }
 
-// ---------- Start Server (HTTPS ONLY) ----------
-const PORT = process.env.PORT || 10000;
+// ---------- Start Server ----------
+const PORT = process.env.PORT || 3002;
 
-// HTTPS സെർവർ മാത്രം ആരംഭിക്കുന്നു
-const server = https.createServer(sslOptions, app);
-
-// Socket.io ഉം HTTPS സെർവറുമായി ബന്ധിപ്പിക്കുന്നു
-const io = new socketio.Server(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
-
-setupSocket(io);
-
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 HTTPS Server is running successfully on https://localhost:${PORT}`);
-    console.log('💎 All in One · Multiplayer Betting Game (Secure)');
-});
+if (sslOptions) {
+    const server = https.createServer(sslOptions, app);
+    const io = new socketio.Server(server);
+    setupSocket(io);
+    server.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 HTTPS Server running on https://localhost:${PORT}`);
+        console.log('💎 All in One · Multiplayer Betting Game (Secure)');
+    });
+} else {
+    const server = http.createServer(app);
+    const io = new socketio.Server(server);
+    setupSocket(io);
+    server.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 HTTP Server running on http://localhost:${PORT}`);
+        console.log('💎 All in One · Multiplayer Betting Game');
+    });
+}

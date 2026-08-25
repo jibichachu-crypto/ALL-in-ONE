@@ -35,19 +35,19 @@
             background-clip: text;
         }
         .subtitle { font-size: 0.85rem; color: #6a8a9a; margin-top: 0.3rem; }
-        .tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
-        .tab-btn {
+        .method-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; background: #0b0f14; padding: 0.3rem; border-radius: 2rem; }
+        .method-btn {
             flex: 1;
-            padding: 0.6rem;
-            background: #0b0f14;
-            border: 1px solid #1f2a33;
-            border-radius: 2rem;
-            color: #8ab0c8;
+            padding: 0.5rem;
+            background: transparent;
+            border: none;
+            border-radius: 1.5rem;
+            color: #6a8a9a;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
         }
-        .tab-btn.active { background: #2a4055; border-color: #4a7a9a; color: #fff; }
+        .method-btn.active { background: #2a4055; color: #fff; }
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; font-size: 0.8rem; color: #6a8a9a; margin-bottom: 0.3rem; }
         .form-group input {
@@ -76,6 +76,8 @@
         .auth-btn:hover { transform: scale(1.02); }
         .message { margin-top: 1rem; text-align: center; font-size: 0.9rem; min-height: 1.5rem; color: #4ade80; }
         .message.error { color: #f87171; }
+        .register-link { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #8ba8b8; }
+        .register-link a { color: #f7d875; text-decoration: none; font-weight: 700; }
         .footer { text-align: center; font-size: 0.6rem; color: #2a4555; margin-top: 1.5rem; }
     </style>
 </head>
@@ -86,126 +88,92 @@
         <div class="title">All in One</div>
         <div class="subtitle">Login to start playing</div>
     </div>
-    <div class="tab-bar">
-        <button class="tab-btn active" data-tab="login">Login</button>
-        <button class="tab-btn" data-tab="register">Register</button>
+
+    <div class="method-bar">
+        <button class="method-btn active" id="usernameMethodBtn">👤 Username</button>
+        <button class="method-btn" id="emailMethodBtn">📧 Email</button>
     </div>
-    <div id="loginForm">
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" id="loginUsername" placeholder="Enter username" />
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="loginPassword" placeholder="Enter password" />
-        </div>
-        <button class="auth-btn" id="loginBtn">🔑 Login</button>
-        <div class="message" id="loginMessage"></div>
+
+    <div class="form-group">
+        <label id="loginIdLabel">Username</label>
+        <input type="text" id="loginId" placeholder="Enter username or email" />
     </div>
-    <div id="registerForm" style="display:none;">
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" id="registerUsername" placeholder="Choose username" />
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="registerPassword" placeholder="Choose password" />
-        </div>
-        <button class="auth-btn" id="registerBtn">📝 Register</button>
-        <div class="message" id="registerMessage"></div>
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" />
+    </div>
+    <button class="auth-btn" id="loginBtn">🔑 Login</button>
+    <div class="message" id="loginMessage"></div>
+
+    <div class="register-link">
+        Don't have an account? <a href="/register.html">Register here</a>
     </div>
     <div class="footer">All in One · Secure Login</div>
 </div>
+
 <script>
     (function() {
         "use strict";
         
-        // ലോക്കൽ ടെസ്റ്റിംഗിന് HTTPS URL
-        const API_URL = 'https://localhost:10000';
+        const API_URL = 'https://localhost:3002'; 
 
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const tabBtns = document.querySelectorAll('.tab-btn');
+        const methodBtns = document.querySelectorAll('.method-btn');
+        const loginId = document.getElementById('loginId');
+        const loginIdLabel = document.getElementById('loginIdLabel');
+        const loginPassword = document.getElementById('loginPassword');
         const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
         const loginMessage = document.getElementById('loginMessage');
-        const registerMessage = document.getElementById('registerMessage');
 
-        tabBtns.forEach(btn => {
+        methodBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                tabBtns.forEach(b => b.classList.remove('active'));
+                methodBtns.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                if (this.dataset.tab === 'login') {
-                    loginForm.style.display = 'block';
-                    registerForm.style.display = 'none';
-                    loginMessage.textContent = '';
-                    loginMessage.className = 'message';
+                
+                if (this.id === 'usernameMethodBtn') {
+                    loginIdLabel.textContent = 'Username';
+                    loginId.placeholder = 'Enter username';
+                    loginId.type = 'text';
+                    loginId.value = '';
                 } else {
-                    loginForm.style.display = 'none';
-                    registerForm.style.display = 'block';
-                    registerMessage.textContent = '';
-                    registerMessage.className = 'message';
+                    loginIdLabel.textContent = 'Email';
+                    loginId.placeholder = 'Enter email address';
+                    loginId.type = 'email';
+                    loginId.value = '';
                 }
             });
         });
 
-        registerBtn.addEventListener('click', async function() {
-            const username = document.getElementById('registerUsername').value.trim();
-            const password = document.getElementById('registerPassword').value.trim();
-            if (!username || !password) {
-                registerMessage.textContent = 'Please fill all fields';
-                registerMessage.className = 'message error';
-                return;
-            }
-            try {
-                const res = await fetch(API_URL + '/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    registerMessage.textContent = '✅ Registration successful! Please login.';
-                    registerMessage.className = 'message';
-                    tabBtns.forEach(b => b.classList.remove('active'));
-                    document.querySelector('[data-tab="login"]').classList.add('active');
-                    loginForm.style.display = 'block';
-                    registerForm.style.display = 'none';
-                    document.getElementById('loginUsername').value = username;
-                    document.getElementById('loginPassword').value = '';
-                    loginMessage.textContent = '✅ Registered! Please login.';
-                    loginMessage.className = 'message';
-                } else {
-                    registerMessage.textContent = '❌ ' + data.message;
-                    registerMessage.className = 'message error';
-                }
-            } catch (err) {
-                registerMessage.textContent = '❌ Server error. Please try again.';
-                registerMessage.className = 'message error';
-            }
-        });
-
         loginBtn.addEventListener('click', async function() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-            if (!username || !password) {
+            const identifier = loginId.value.trim();
+            const password = loginPassword.value.trim();
+            
+            if (!identifier || !password) {
                 loginMessage.textContent = 'Please fill all fields';
                 loginMessage.className = 'message error';
                 return;
             }
+
+            const isEmailLogin = document.getElementById('emailMethodBtn').classList.contains('active');
+            const payload = isEmailLogin 
+                ? { email: identifier, password } 
+                : { username: identifier, password };
+
             try {
                 const res = await fetch(API_URL + '/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
+                
                 if (data.success) {
-                    loginMessage.textContent = '✅ Login successful! Redirecting...';
+                    loginMessage.textContent = '✅ Login successful! Redirecting to Game...';
                     loginMessage.className = 'message';
-                    localStorage.setItem('username', username);
+                    
+                    localStorage.setItem('username', identifier);
+                    
                     setTimeout(() => {
-                        window.location.href = '/index.html?username=' + encodeURIComponent(username);
+                        window.location.href = '/game.html';
                     }, 1000);
                 } else {
                     loginMessage.textContent = '❌ ' + data.message;
@@ -217,11 +185,8 @@
             }
         });
 
-        document.getElementById('loginPassword').addEventListener('keydown', function(e) {
+        loginPassword.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') loginBtn.click();
-        });
-        document.getElementById('registerPassword').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') registerBtn.click();
         });
     })();
 </script>
