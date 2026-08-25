@@ -1,1 +1,24 @@
-{}
+{
+  "jibichachu@gmail.com": {
+    "firstName": "jibin",
+    "lastName": "r",
+    "email": "jibichachu@gmail.com",
+    "phone": "9995639742",
+    "password": "P@ssw0rd12",
+    "balance": 1000,
+    "loginStreak": 0,
+    "lastLoginDate": null,
+    "createdAt": "2026-08-25T10:38:37.091Z"
+  },
+  "jibin@gmail.com": {
+    "firstName": "jibin",
+    "lastName": "raj",
+    "email": "jibin@gmail.com",
+    "phone": "9995639742",
+    "password": "Jibin@123456",
+    "balance": 1000,
+    "loginStreak": 0,
+    "lastLoginDate": null,
+    "createdAt": "2026-08-25T10:42:24.734Z"
+  }
+}

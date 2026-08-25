@@ -4,10 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>All in One · Login</title>
+    
+    <!-- Bootstrap CSS (Local) -->
+    <link href="bootstrap-5.0.2-dist/css/bootstrap.css" rel="stylesheet">
+    
+    <!-- Google reCAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body {
-            background: #0a0c0f;
+            background: linear-gradient(135deg, #4F46E5, #7C3AED, #A855F7);
             color: #eaeef2;
             min-height: 100vh;
             display: flex;
@@ -35,19 +42,6 @@
             background-clip: text;
         }
         .subtitle { font-size: 0.85rem; color: #6a8a9a; margin-top: 0.3rem; }
-        .method-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; background: #0b0f14; padding: 0.3rem; border-radius: 2rem; }
-        .method-btn {
-            flex: 1;
-            padding: 0.5rem;
-            background: transparent;
-            border: none;
-            border-radius: 1.5rem;
-            color: #6a8a9a;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .method-btn.active { background: #2a4055; color: #fff; }
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; font-size: 0.8rem; color: #6a8a9a; margin-bottom: 0.3rem; }
         .form-group input {
@@ -78,7 +72,50 @@
         .message.error { color: #f87171; }
         .register-link { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #8ba8b8; }
         .register-link a { color: #f7d875; text-decoration: none; font-weight: 700; }
+        .forgot-password {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #6a8a9a;
+        }
+        .forgot-password a { color: #f7d875; text-decoration: none; font-weight: 700; }
         .footer { text-align: center; font-size: 0.6rem; color: #2a4555; margin-top: 1.5rem; }
+        
+        /* Social Login Buttons */
+        .social-btn {
+            width: 100%;
+            padding: 0.7rem;
+            background: #fff;
+            border: none;
+            border-radius: 2rem;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #333;
+            cursor: pointer;
+            transition: 0.25s;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .social-btn:hover { transform: scale(1.02); }
+        .social-btn svg { width: 20px; height: 20px; }
+        .divider {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 0.8rem;
+            color: #6a8a9a;
+        }
+        .divider::before, .divider::after {
+            content: "";
+            display: inline-block;
+            width: 40%;
+            height: 1px;
+            background: #1f2a33;
+            vertical-align: middle;
+            margin: 0 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -89,8 +126,29 @@
         <div class="subtitle">Login to start playing</div>
     </div>
 
+    <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUsername" placeholder="Enter username" />
+    </div>
+    <div class="form-group">
+        <label>8 Digit PIN</label>
+        <input type="password" id="loginPassword" placeholder="Enter 8-digit PIN" maxlength="8" />
+    </div>
+    
+    <!-- Google reCAPTCHA Box -->
+    <div class="g-recaptcha" data-sitekey="6LemA5gtAAAAADiUhRX2YEeAJ3M8Asw0hlXaxfT"></div>
+
+    <button class="auth-btn" id="loginBtn">🔑 Login</button>
+    <div class="message" id="loginMessage"></div>
+    
+    <div class="forgot-password">
+        <a href="/forgot-password.html">Forgot Password?</a>
+    </div>
+
+    <div class="divider">or</div>
+
     <!-- Google Login Button -->
-    <div class="google-btn" id="googleLoginBtn" style="background: #fff; border-radius: 2rem; padding: 0.7rem; margin-bottom: 1rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 700; color: #333;">
+    <div class="social-btn" id="googleLoginBtn">
         <svg viewBox="0 0 24 24" width="20" height="20">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -100,25 +158,21 @@
         <span>Sign in with Google</span>
     </div>
 
-    <div class="divider" style="text-align: center; margin: 1rem 0; font-size: 0.8rem; color: #6a8a9a;">
-        <span>or</span>
+    <!-- Facebook Login Button -->
+    <div class="social-btn" id="facebookLoginBtn">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
+        </svg>
+        <span>Sign in with Facebook</span>
     </div>
 
-    <div class="method-bar">
-        <button class="method-btn active" id="usernameMethodBtn">👤 Username</button>
-        <button class="method-btn" id="emailMethodBtn">📧 Email</button>
+    <!-- Apple Login Button -->
+    <div class="social-btn" id="appleLoginBtn">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+            <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.03 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z" fill="#000"/>
+        </svg>
+        <span>Sign in with Apple</span>
     </div>
-
-    <div class="form-group">
-        <label id="loginIdLabel">Username</label>
-        <input type="text" id="loginId" placeholder="Enter username or email" />
-    </div>
-    <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="loginPassword" placeholder="Enter password" />
-    </div>
-    <button class="auth-btn" id="loginBtn">🔑 Login</button>
-    <div class="message" id="loginMessage"></div>
 
     <div class="register-link">
         Don't have an account? <a href="/register.html">Register here</a>
@@ -126,66 +180,46 @@
     <div class="footer">All in One · Secure Login</div>
 </div>
 
+<!-- Bootstrap JS (Local) -->
+<script src="bootstrap-5.0.2-dist/js/bootstrap.js"></script>
+
 <script>
     (function() {
         "use strict";
         
         const API_URL = 'https://localhost:3002'; 
 
-        const methodBtns = document.querySelectorAll('.method-btn');
-        const loginId = document.getElementById('loginId');
-        const loginIdLabel = document.getElementById('loginIdLabel');
+        const loginUsername = document.getElementById('loginUsername');
         const loginPassword = document.getElementById('loginPassword');
         const loginBtn = document.getElementById('loginBtn');
         const loginMessage = document.getElementById('loginMessage');
         const googleLoginBtn = document.getElementById('googleLoginBtn');
-
-        // Google Login
-        googleLoginBtn.addEventListener('click', async function() {
-            loginMessage.textContent = 'Google Login is being set up...';
-            loginMessage.className = 'message error';
-            // നിങ്ങളുടെ Google OAuth Client ID ഇവിടെ ഉപയോഗിച്ച് കോഡ് എഴുതണം
-        });
-
-        methodBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                methodBtns.forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                if (this.id === 'usernameMethodBtn') {
-                    loginIdLabel.textContent = 'Username';
-                    loginId.placeholder = 'Enter username';
-                    loginId.type = 'text';
-                    loginId.value = '';
-                } else {
-                    loginIdLabel.textContent = 'Email';
-                    loginId.placeholder = 'Enter email address';
-                    loginId.type = 'email';
-                    loginId.value = '';
-                }
-            });
-        });
+        const facebookLoginBtn = document.getElementById('facebookLoginBtn');
+        const appleLoginBtn = document.getElementById('appleLoginBtn');
 
         loginBtn.addEventListener('click', async function() {
-            const identifier = loginId.value.trim();
+            const username = loginUsername.value.trim();
             const password = loginPassword.value.trim();
             
-            if (!identifier || !password) {
+            if (!username || !password) {
                 loginMessage.textContent = 'Please fill all fields';
                 loginMessage.className = 'message error';
                 return;
             }
 
-            const isEmailLogin = document.getElementById('emailMethodBtn').classList.contains('active');
-            const payload = isEmailLogin 
-                ? { email: identifier, password } 
-                : { username: identifier, password };
+            // Google reCAPTCHA Verification
+            const captchaResponse = grecaptcha.getResponse();
+            if (captchaResponse.length === 0) {
+                loginMessage.textContent = 'Please complete the CAPTCHA';
+                loginMessage.className = 'message error';
+                return;
+            }
 
             try {
                 const res = await fetch(API_URL + '/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ username, password, captchaResponse })
                 });
                 const data = await res.json();
                 
@@ -193,7 +227,7 @@
                     loginMessage.textContent = '✅ Login successful! Redirecting to Game...';
                     loginMessage.className = 'message';
                     
-                    localStorage.setItem('username', identifier);
+                    localStorage.setItem('username', username);
                     
                     setTimeout(() => {
                         window.location.href = '/game.html';
@@ -206,6 +240,25 @@
                 loginMessage.textContent = '❌ Server error. Please try again.';
                 loginMessage.className = 'message error';
             }
+        });
+
+        // Google Login
+        googleLoginBtn.addEventListener('click', async function() {
+            // ഇത് പ്രവർത്തിക്കാൻ, നിങ്ങൾക്ക് ഒരു പ്രൊഫഷണൽ OAuth 2.0 ലോഗിൻ സിസ്റ്റം ആവശ്യമാണ്.
+            // ഇത് ചെയ്യാൻ, നിങ്ങൾക്ക് ഒരു Google OAuth Client ID ആവശ്യമാണ്.
+            // ഇത് ചെയ്യാൻ, നിങ്ങൾക്ക് ഒരു Google OAuth Client ID ആവശ്യമാണ്.
+        });
+
+        // Facebook Login
+        facebookLoginBtn.addEventListener('click', async function() {
+            loginMessage.textContent = 'Facebook Login is being set up...';
+            loginMessage.className = 'message error';
+        });
+
+        // Apple Login
+        appleLoginBtn.addEventListener('click', async function() {
+            loginMessage.textContent = 'Apple Login is being set up...';
+            loginMessage.className = 'message error';
         });
 
         loginPassword.addEventListener('keydown', function(e) {

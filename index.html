@@ -4,57 +4,44 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>All in One · Home</title>
+    
+    <!-- Bootstrap CSS (Local) -->
+    <link href="bootstrap-5.0.2-dist/css/bootstrap.css" rel="stylesheet">
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body {
-            background: radial-gradient(circle at top, #12171d, #0a0c0f);
+            background: linear-gradient(135deg, #4F46E5, #7C3AED, #A855F7);
             color: #eaeef2;
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 2rem;
         }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 3rem;
+        .home-container {
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
         }
-        .header .logo-title {
-            font-size: 2.5rem;
+        .logo { font-size: 5rem; margin-bottom: 1rem; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .title {
+            font-size: 3rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #f7d875, #e8b84d);
+            background: linear-gradient(135deg, #fff, #f7d875);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
         }
-        .header .logo-icon {
-            font-size: 2.5rem;
-        }
-        .login-btn {
-            background: #f7d875;
-            color: #0b0f14;
-            border: none;
-            border-radius: 2rem;
-            padding: 0.7rem 1.5rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .login-btn:hover { background: #e8b84d; transform: scale(1.05); }
-        
-        .subtitle { font-size: 1.2rem; color: #8ba8b8; margin-bottom: 3rem; text-align: center; }
-        
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .subtitle { font-size: 1.2rem; color: #d1d5db; margin-bottom: 3rem; }
+        .games-grid { display: flex; justify-content: center; gap: 1.5rem; }
         .game-card {
             background: #12171d;
             border: 1px solid #1f2a33;
             border-radius: 2rem;
             padding: 2rem 1.5rem;
-            width: 100%;
+            width: 250px;
             cursor: pointer;
             transition: 0.3s;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -75,41 +62,40 @@
             transition: 0.2s;
         }
         .play-btn:hover { background: #e8b84d; transform: scale(1.05); }
-        
-        .games-section {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .games-section h2 {
-            font-size: 2rem;
+        .login-btn {
+            background: #f7d875;
+            color: #0b0f14;
+            border: none;
+            border-radius: 2rem;
+            padding: 0.7rem 1.5rem;
             font-weight: 800;
-            color: #f7d875;
+            cursor: pointer;
+            transition: 0.2s;
         }
+        .login-btn:hover { background: #e8b84d; transform: scale(1.05); }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div>
-            <span class="logo-icon">💎</span>
-            <span class="logo-title">All in One</span>
+    <div class="home-container">
+        <div class="logo">💎</div>
+        <div class="title">All in One</div>
+        <div class="subtitle">Entertainment. Games. Rewards.</div>
+        
+        <div class="games-grid">
+            <div class="game-card" onclick="window.location.href='/register.html'">
+                <div class="game-icon">🧩</div>
+                <div class="game-title">Gem Puzzle</div>
+                <div class="game-desc">A classic sliding puzzle game. Bet, play and win rewards.</div>
+                <button class="play-btn">Play Now</button>
+            </div>
         </div>
-        <button class="login-btn" onclick="window.location.href='/login.html'">Login</button>
-    </div>
-    
-    <div class="subtitle">Entertainment. Games. Rewards.</div>
-    
-    <div class="games-section">
-        <h2>Featured Games</h2>
-    </div>
-    
-    <div class="games-grid">
-        <!-- Game Card -->
-        <div class="game-card" onclick="window.location.href='/register.html'">
-            <div class="game-icon">🧩</div>
-            <div class="game-title">8-Puzzle</div>
-            <div class="game-desc">A classic sliding puzzle game. Bet, play and win rewards.</div>
-            <button class="play-btn">Play Now</button>
+        
+        <div class="header" style="margin-top: 2rem;">
+            <button class="login-btn" onclick="window.location.href='/login.html'">Login</button>
         </div>
     </div>
+
+    <!-- Bootstrap JS (Local) -->
+    <script src="bootstrap-5.0.2-dist/js/bootstrap.js"></script>
 </body>
 </html>

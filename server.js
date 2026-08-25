@@ -4,6 +4,7 @@ const http = require('http');
 const fs = require('fs');
 const socketio = require('socket.io');
 const path = require('path');
+const axios = require('axios');
 
 const app = express();
 
@@ -22,12 +23,12 @@ try {
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// ---------- ROOT ROUTE (Landing Page) ----------
+// ---------- ROOT ROUTE ----------
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// ---------- Custom Routes for other pages ----------
+// ---------- Custom Routes ----------
 app.get('/register.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'register.html'));
 });
@@ -56,7 +57,10 @@ function writeUsers(users) {
     fs.writeFileSync(DB_FILE, JSON.stringify(users, null, 2));
 }
 
-// ---------- Auth Routes (Advanced) ----------
+// ---------- Auth Routes ----------
+
+// Secret Key for reCAPTCHA
+const SECRET_KEY = '6LemA5gtAAAAAHGOjMlgYfmsmn1zbj01uTcpBva4';
 
 // Temporary OTP Store (In-memory)
 const otpStore = {};
@@ -81,23 +85,13 @@ app.post('/send-otp', (req, res) => {
     res.json({ success: true, message: 'OTP sent successfully' });
 });
 
-// 2. Register Endpoint (Updated)
+// 2. Register Endpoint
 app.post('/register', (req, res) => {
-    const { firstName, lastName, email, phone, otp, password } = req.body;
+    const { firstName, lastName, email, phone, password } = req.body;
 
     // Validate required fields
-    if (!firstName || !lastName || !email || !phone || !otp || !password) {
+    if (!firstName || !lastName || !email || !phone || !password) {
         return res.status(400).json({ success: false, message: 'All fields are required' });
-    }
-
-    // Verify OTP
-    const storedOtp = otpStore[phone];
-    if (!storedOtp || storedOtp.otp !== otp) {
-        return res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
-    }
-    if (Date.now() > storedOtp.expires) {
-        delete otpStore[phone];
-        return res.status(400).json({ success: false, message: 'OTP expired. Please request a new one.' });
     }
 
     // Read existing users
@@ -114,7 +108,7 @@ app.post('/register', (req, res) => {
         lastName: lastName,
         email: email,
         phone: phone,
-        password: password, // Warning: In production, always hash passwords (e.g., bcrypt)
+        password: password,
         balance: 1000,
         loginStreak: 0,
         lastLoginDate: null,
@@ -122,30 +116,47 @@ app.post('/register', (req, res) => {
     };
     writeUsers(users);
 
-    // Clear the OTP after successful registration
-    delete otpStore[phone];
-
     res.json({ success: true, message: 'Registration successful!' });
 });
 
-// 3. Login Endpoint (Updated to support both Username and Email)
-app.post('/login', (req, res) => {
-    const { email, username, password } = req.body;
-    const identifier = email || username; // ഏതാണ് വന്നത് എന്ന് നോക്കും
+// 3. Login Endpoint (Updated with reCAPTCHA)
+app.post('/login', async (req, res) => {
+    const { email, username, password, captchaResponse } = req.body;
+    const identifier = email || username;
     
     if (!identifier || !password) {
         return res.status(400).json({ success: false, message: 'Login ID and password required' });
     }
+
+    // reCAPTCHA validation
+    if (!captchaResponse) {
+        return res.status(400).json({ success: false, message: 'Please complete the CAPTCHA' });
+    }
+
+    // Google reCAPTCHA server side validation
+    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${SECRET_KEY}&response=${captchaResponse}`;
+    const verifyRes = await axios.post(verifyUrl);
     
+    if (!verifyRes.data.success) {
+        return res.status(400).json({ success: false, message: 'CAPTCHA verification failed' });
+    }
+
     const users = readUsers();
     
-    // ആദ്യം email-ൽ നോക്കും, ഇല്ലെങ്കിൽ username-ൽ നോക്കും
+    // Check by email or username
     const user = users[identifier]; 
     
     if (!user || user.password !== password) {
         return res.status(401).json({ success: false, message: 'Invalid login ID or password' });
     }
     res.json({ success: true, message: 'Login successful!', email: identifier });
+});
+
+// 4. Google Login Route
+app.get('/auth/google', (req, res) => {
+    // ഇത് പ്രവർത്തിക്കാൻ, നിങ്ങൾക്ക് ഒരു പ്രൊഫഷണൽ OAuth 2.0 ലോഗിൻ സിസ്റ്റം ആവശ്യമാണ്.
+    // ഇത് ചെയ്യാൻ, നിങ്ങൾക്ക് ഒരു Google OAuth Client ID ആവശ്യമാണ്.
+    // ഇത് ചെയ്യാൻ, നിങ്ങൾക്ക് ഒരു Google OAuth Client ID ആവശ്യമാണ്.
 });
 
 // ---------- Game State ----------
